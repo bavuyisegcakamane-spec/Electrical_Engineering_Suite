@@ -3,12 +3,12 @@
 import sys
 
 from PySide6.QtWidgets import (
-    QMainWindow,
     QApplication,
-    QWidget,
-    QVBoxLayout,
+    QMainWindow,
     QLabel,
     QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
 from app.settings import (
@@ -18,66 +18,100 @@ from app.settings import (
     WINDOW_HEIGHT,
 )
 
+from database.database import Database
 
-class MainWindow(PySide6.QtWidgets.QMainWindow):
+
+class MainWindow(QMainWindow):
     """Main application window."""
 
-    def __init__(self):
+    def __init__(self, database):
         super().__init__()
 
-        self.setWindowTitle(f"{APP_NAME} v{APP_VERSION}")
-        self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.database = database
+
+        self.setWindowTitle(
+            f"{APP_NAME} v{APP_VERSION}"
+        )
+
+        self.resize(
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT,
+        )
 
         self.setup_ui()
 
     def setup_ui(self):
         """Create the main user interface."""
 
-        central_widget = PySide6.QtWidgets.QWidget()
-        layout = PySide6.QtWidgets.QVBoxLayout()
+        central_widget = QWidget()
+        layout = QVBoxLayout()
 
-        title = PySide6.QtWidgets.QLabel(APP_NAME)
+        title = QLabel(APP_NAME)
+
         title.setStyleSheet(
             "font-size: 28px; font-weight: bold;"
         )
 
-        version = PySide6.QtWidgets.QLabel(f"Version {APP_VERSION}")
+        version = QLabel(
+            f"Version {APP_VERSION}"
+        )
 
-        calculations_button = PySide6.QtWidgets.QPushButton(
+        database_status = QLabel(
+            "● Database: Connected"
+        )
+
+        calculations_button = QPushButton(
             "Engineering Calculations"
         )
 
-        database_button = PySide6.QtWidgets.QPushButton(
+        database_button = QPushButton(
             "Database"
         )
 
-        settings_button = PySide6.QtWidgets.QPushButton(
+        settings_button = QPushButton(
             "Settings"
         )
 
-        exit_button = PySide6.QtWidgets.QPushButton(
+        exit_button = QPushButton(
             "Exit"
         )
 
-        exit_button.clicked.connect(self.close)
+        exit_button.clicked.connect(
+            self.close
+        )
 
         layout.addWidget(title)
         layout.addWidget(version)
+        layout.addWidget(database_status)
+
         layout.addSpacing(20)
 
-        layout.addWidget(calculations_button)
-        layout.addWidget(database_button)
-        layout.addWidget(settings_button)
+        layout.addWidget(
+            calculations_button
+        )
+
+        layout.addWidget(
+            database_button
+        )
+
+        layout.addWidget(
+            settings_button
+        )
 
         layout.addStretch()
 
-        layout.addWidget(exit_button)
+        layout.addWidget(
+            exit_button
+        )
 
         central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
+
+        self.setCentralWidget(
+            central_widget
+        )
 
 
 def create_application():
-    """Create and return the Qt application."""
+    """Create the Qt application."""
 
-    return PySide6.QtWidgets.QApplication(sys.argv)
+    return QApplication(sys.argv)

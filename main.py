@@ -2,18 +2,34 @@
 
 import sys
 
-from app.application import create_application, MainWindow
+from app.application import (
+    create_application,
+    MainWindow,
+)
+
+from database.database import Database
 
 
 def main():
     """Start the application."""
 
-    application = create_application()
+    database = Database()
 
-    window = MainWindow()
-    window.show()
+    try:
+        database.initialize()
 
-    sys.exit(application.exec())
+        application = create_application()
+
+        window = MainWindow(database)
+
+        window.show()
+
+        exit_code = application.exec()
+
+    finally:
+        database.close()
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
