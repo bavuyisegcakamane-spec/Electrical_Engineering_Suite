@@ -3,7 +3,7 @@
 import sqlite3
 from pathlib import Path
 
-from app.settings import DATA_DIR, DATABASE_PATH
+from app.settings import DATABASE_PATH
 
 
 class Database:
@@ -16,7 +16,7 @@ class Database:
     def initialize(self):
         """Create the database directory and initialize the database."""
 
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        self.database_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.connection = sqlite3.connect(self.database_path)
 
@@ -41,7 +41,11 @@ class Database:
 
         if self.connection:
             self.connection.close()
-            self.connection = None
+            
+    def is_connected(self) -> bool:
+        """Return True if the database connection is open."""
+
+        return self.connection is not None
 
     def execute(self, query, parameters=()):
         """Execute a SQL query."""
