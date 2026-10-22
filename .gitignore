@@ -1,0 +1,18 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Local SQLite database (created on first run)
+data/*.db
+
+# Test and tooling caches
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
