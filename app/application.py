@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
     QLabel,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -56,9 +57,13 @@ class MainWindow(QMainWindow):
             f"Version {APP_VERSION}"
         )
 
-        database_status = QLabel(
+        status_text = (
             "● Database: Connected"
+            if self.database.is_connected()
+            else "● Database: Disconnected"
         )
+
+        database_status = QLabel(status_text)
 
         calculations_button = QPushButton(
             "Engineering Calculations"
@@ -108,6 +113,30 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(
             central_widget
+        )
+
+    def open_calculations(self):
+        """Open the engineering calculations view."""
+
+        self.show_placeholder("Engineering Calculations")
+
+    def open_database(self):
+        """Open the database view."""
+
+        self.show_placeholder("Database")
+
+    def open_settings(self):
+        """Open the settings view."""
+
+        self.show_placeholder("Settings")
+
+    def show_placeholder(self, feature_name):
+        """Tell the user a feature is not built yet."""
+
+        QMessageBox.information(
+            self,
+            feature_name,
+            f"{feature_name} is coming soon.",
         )
 
 
