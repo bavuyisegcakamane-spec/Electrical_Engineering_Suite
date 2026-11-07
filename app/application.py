@@ -32,6 +32,8 @@ from app.report_dialog import ReportDialog
 from app.workspace_dialog import WorkspaceDialog
 from app.dashboard import Dashboard
 from app.transformer_dialog import TransformerDialog
+from app.ac_engineering_dialog import ACEngineeringDialog
+from app.fault_diagnosis_dialog import FaultDiagnosisDialog
 
 
 class MainWindow(QMainWindow):
@@ -87,6 +89,14 @@ class MainWindow(QMainWindow):
     def open_transformers(self):
         """Open ideal single-phase transformer calculator."""
         dialog = TransformerDialog(self)
+        dialog.exec()
+
+    def open_ac_engineering(self):
+        dialog = ACEngineeringDialog(self)
+        dialog.exec()
+
+    def open_fault_diagnosis(self):
+        dialog = FaultDiagnosisDialog(self)
         dialog.exec()
 
     def open_cables(self):

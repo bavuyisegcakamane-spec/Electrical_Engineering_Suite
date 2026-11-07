@@ -8,6 +8,7 @@ from projects.workspace import Workspace
 TOOLS = {
     "Circuits and fundamentals": [
         ("Engineering Calculations", "open_calculations"),
+        ("AC / Impedance / Insulation Calculations", "open_ac_engineering"),
         ("Circuit Analyzer", "open_circuits"),
         ("Mixed Circuit Analyzer", "open_mixed_circuits")],
     "Loads and machines": [
@@ -17,7 +18,8 @@ TOOLS = {
         ("Power Factor Correction", "open_power_factor")],
     "Cables and protection": [
         ("Cable Voltage Drop", "open_cables"),
-        ("Protection / Fault Current", "open_protection")],
+        ("Protection / Fault Current", "open_protection"),
+        ("Electrical Fault-Finding Assistant", "open_fault_diagnosis")],
     "Projects and reporting": [
         ("Project Workspace", "open_workspace"),
         ("Engineering PDF Reports", "open_reports")],

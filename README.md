@@ -552,6 +552,7 @@ Checked items represent implemented functionality, not engineering certification
 - [x] Series and parallel Circuit Analyzer
 - [x] Mixed series-parallel Circuit Analyzer
 - [x] Engineering calculator (initial tools)
+- [x] Additional AC power, series RLC impedance and insulation-resistance estimators
 - [ ] Complete Engineering Toolbox (remaining utilities)
 - [x] Ideal single-phase Transformer Calculator (turns ratio, voltage and rated currents)
 - [ ] Advanced transformer losses, regulation and protection
@@ -571,7 +572,8 @@ Checked items represent implemented functionality, not engineering certification
 - [ ] Energy Monitoring Dashboard
 - [ ] Measurement database
 - [ ] Graphs and charts
-- [ ] Fault Diagnosis and troubleshooting database
+- [x] Initial symptom-based fault-finding assistant with safety guidance
+- [ ] Comprehensive fault diagnosis and troubleshooting database
 - [ ] Alerts
 
 ## Phase 5 - AI
