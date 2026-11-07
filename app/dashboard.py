@@ -26,6 +26,7 @@ TOOLS = {
         ("SANS Cable Factors / Protection Review", "open_sans_extended"),
         ("SANS Evidence and Inspection Register", "open_sans_verification"),
         ("Manufacturer Device Curve Comparison", "open_device_coordination"),
+        ("Electrical Equipment Catalogue", "open_equipment_catalog"),
         ("Electrical Fault-Finding Assistant", "open_fault_diagnosis")],
     "Projects and reporting": [
         ("Project Workspace", "open_workspace"),
