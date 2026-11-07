@@ -23,6 +23,7 @@ from database.database import Database
 from app.calculator_dialog import CalculatorDialog
 from app.circuit_dialog import CircuitDialog
 from app.mixed_dialog import MixedCircuitDialog
+from app.load_dialog import LoadDialog
 
 
 class MainWindow(QMainWindow):
@@ -74,6 +75,7 @@ class MainWindow(QMainWindow):
 
         circuit_button = QPushButton("Circuit Analyzer")
         mixed_button = QPushButton("Mixed Circuit Analyzer")
+        load_button = QPushButton("Electrical Load Calculator")
 
         database_button = QPushButton(
             "Database"
@@ -90,6 +92,7 @@ class MainWindow(QMainWindow):
         calculations_button.clicked.connect(self.open_calculations)
         circuit_button.clicked.connect(self.open_circuits)
         mixed_button.clicked.connect(self.open_mixed_circuits)
+        load_button.clicked.connect(self.open_loads)
         database_button.clicked.connect(self.open_database)
         settings_button.clicked.connect(self.open_settings)
         exit_button.clicked.connect(self.close)
@@ -105,6 +108,7 @@ class MainWindow(QMainWindow):
         )
         layout.addWidget(circuit_button)
         layout.addWidget(mixed_button)
+        layout.addWidget(load_button)
 
         layout.addWidget(
             database_button
@@ -140,6 +144,11 @@ class MainWindow(QMainWindow):
     def open_mixed_circuits(self):
         """Open the mixed resistor circuit analyzer."""
         dialog = MixedCircuitDialog(self)
+        dialog.exec()
+
+    def open_loads(self):
+        """Open the electrical load calculator."""
+        dialog = LoadDialog(self)
         dialog.exec()
 
     def open_database(self):
