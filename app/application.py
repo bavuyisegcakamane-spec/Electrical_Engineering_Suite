@@ -30,6 +30,7 @@ from app.protection_dialog import ProtectionDialog
 from app.power_factor_dialog import PowerFactorDialog
 from app.report_dialog import ReportDialog
 from app.workspace_dialog import WorkspaceDialog
+from app.dashboard import Dashboard
 
 
 class MainWindow(QMainWindow):
@@ -52,107 +53,9 @@ class MainWindow(QMainWindow):
         self.setup_ui()
 
     def setup_ui(self):
-        """Create the main user interface."""
-
-        central_widget = QWidget()
-        layout = QVBoxLayout()
-
-        title = QLabel(APP_NAME)
-
-        title.setStyleSheet(
-            "font-size: 28px; font-weight: bold;"
-        )
-
-        version = QLabel(
-            f"Version {APP_VERSION}"
-        )
-
-        status_text = (
-            "● Database: Connected"
-            if self.database.is_connected()
-            else "● Database: Disconnected"
-        )
-
-        database_status = QLabel(status_text)
-
-        calculations_button = QPushButton(
-            "Engineering Calculations"
-        )
-
-        circuit_button = QPushButton("Circuit Analyzer")
-        mixed_button = QPushButton("Mixed Circuit Analyzer")
-        load_button = QPushButton("Electrical Load Calculator")
-        motor_button = QPushButton("Motor Analysis")
-        cable_button = QPushButton("Cable Voltage Drop")
-        protection_button = QPushButton("Protection / Fault Current")
-        pf_button = QPushButton("Power Factor Correction")
-        report_button = QPushButton("Engineering PDF Reports")
-        workspace_button = QPushButton("Project Workspace")
-
-        database_button = QPushButton(
-            "Database"
-        )
-
-        settings_button = QPushButton(
-            "Settings"
-        )
-
-        exit_button = QPushButton(
-            "Exit"
-        )
-
-        calculations_button.clicked.connect(self.open_calculations)
-        circuit_button.clicked.connect(self.open_circuits)
-        mixed_button.clicked.connect(self.open_mixed_circuits)
-        load_button.clicked.connect(self.open_loads)
-        motor_button.clicked.connect(self.open_motors)
-        cable_button.clicked.connect(self.open_cables)
-        protection_button.clicked.connect(self.open_protection)
-        pf_button.clicked.connect(self.open_power_factor)
-        report_button.clicked.connect(self.open_reports)
-        workspace_button.clicked.connect(self.open_workspace)
-        database_button.clicked.connect(self.open_database)
-        settings_button.clicked.connect(self.open_settings)
-        exit_button.clicked.connect(self.close)
-
-        layout.addWidget(title)
-        layout.addWidget(version)
-        layout.addWidget(database_status)
-
-        layout.addSpacing(20)
-
-        layout.addWidget(
-            calculations_button
-        )
-        layout.addWidget(circuit_button)
-        layout.addWidget(mixed_button)
-        layout.addWidget(load_button)
-        layout.addWidget(motor_button)
-        layout.addWidget(cable_button)
-        layout.addWidget(protection_button)
-        layout.addWidget(pf_button)
-        layout.addWidget(report_button)
-        layout.addWidget(workspace_button)
-
-        layout.addWidget(
-            database_button
-        )
-
-        layout.addWidget(
-            settings_button
-        )
-
-        layout.addStretch()
-
-        layout.addWidget(
-            exit_button
-        )
-
-        central_widget.setLayout(layout)
-
-        self.setCentralWidget(
-            central_widget
-        )
+        """Create the searchable categorized main dashboard."""
+        self.dashboard = Dashboard(self)
+        self.setCentralWidget(self.dashboard)
 
     def open_calculations(self):
         """Open the engineering calculations view."""
