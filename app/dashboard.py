@@ -22,6 +22,7 @@ TOOLS = {
         ("Protection / Fault Current", "open_protection"),
         ("Cable / Earthing / Protection Screening", "open_installation"),
         ("SANS 10142-1 Partial Installation Checks", "open_sans_screening"),
+        ("SANS Buried Cable Table Subset", "open_sans_cable_tables"),
         ("Electrical Fault-Finding Assistant", "open_fault_diagnosis")],
     "Projects and reporting": [
         ("Project Workspace", "open_workspace"),
