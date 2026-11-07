@@ -25,6 +25,7 @@ from app.circuit_dialog import CircuitDialog
 from app.mixed_dialog import MixedCircuitDialog
 from app.load_dialog import LoadDialog
 from app.motor_dialog import MotorDialog
+from app.cable_dialog import CableDialog
 
 
 class MainWindow(QMainWindow):
@@ -78,6 +79,7 @@ class MainWindow(QMainWindow):
         mixed_button = QPushButton("Mixed Circuit Analyzer")
         load_button = QPushButton("Electrical Load Calculator")
         motor_button = QPushButton("Motor Analysis")
+        cable_button = QPushButton("Cable Voltage Drop")
 
         database_button = QPushButton(
             "Database"
@@ -96,6 +98,7 @@ class MainWindow(QMainWindow):
         mixed_button.clicked.connect(self.open_mixed_circuits)
         load_button.clicked.connect(self.open_loads)
         motor_button.clicked.connect(self.open_motors)
+        cable_button.clicked.connect(self.open_cables)
         database_button.clicked.connect(self.open_database)
         settings_button.clicked.connect(self.open_settings)
         exit_button.clicked.connect(self.close)
@@ -113,6 +116,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(mixed_button)
         layout.addWidget(load_button)
         layout.addWidget(motor_button)
+        layout.addWidget(cable_button)
 
         layout.addWidget(
             database_button
@@ -158,6 +162,11 @@ class MainWindow(QMainWindow):
     def open_motors(self):
         """Open three-phase motor analysis."""
         dialog = MotorDialog(self)
+        dialog.exec()
+
+    def open_cables(self):
+        """Open educational cable voltage-drop estimator."""
+        dialog = CableDialog(self)
         dialog.exec()
 
     def open_database(self):
