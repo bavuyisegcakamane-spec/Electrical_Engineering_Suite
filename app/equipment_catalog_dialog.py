@@ -3,6 +3,7 @@ import webbrowser
 from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QPushButton,
                                QTableWidget,QTableWidgetItem,QMessageBox,QFormLayout,QComboBox)
 from database.equipment_catalog import EquipmentCatalog
+from app.branding import BRAND_SIGNATURE
 
 
 class EquipmentCatalogDialog(QDialog):
@@ -12,7 +13,7 @@ class EquipmentCatalogDialog(QDialog):
         self.resize(1050, 650)
         self.catalog = EquipmentCatalog(database)
         layout = QVBoxLayout(self)
-        signature = QLabel('⟦ raw.bytes © 2026 ⟧')
+        signature = QLabel(BRAND_SIGNATURE)
         signature.setObjectName('rawBytesSignature')
         signature.setStyleSheet('font-size: 18px; font-weight: 700; letter-spacing: 1px;')
         layout.addWidget(signature)
