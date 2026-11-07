@@ -35,6 +35,8 @@ from app.transformer_dialog import TransformerDialog
 from app.ac_engineering_dialog import ACEngineeringDialog
 from app.fault_diagnosis_dialog import FaultDiagnosisDialog
 from app.advanced_equipment_dialog import AdvancedEquipmentDialog
+from app.installation_dialog import InstallationDialog
+from app.field_records_dialog import FieldRecordsDialog
 
 
 class MainWindow(QMainWindow):
@@ -102,6 +104,14 @@ class MainWindow(QMainWindow):
 
     def open_advanced_equipment(self):
         dialog = AdvancedEquipmentDialog(self)
+        dialog.exec()
+
+    def open_installation(self):
+        dialog = InstallationDialog(self)
+        dialog.exec()
+
+    def open_field_records(self):
+        dialog = FieldRecordsDialog(self.database, self)
         dialog.exec()
 
     def open_cables(self):

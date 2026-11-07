@@ -565,14 +565,17 @@ Checked items represent implemented functionality, not engineering certification
 - [x] Preliminary induction-motor starting current and slip estimator
 - [ ] Motor selection, thermal modeling and protection coordination
 - [x] Cable resistive voltage-drop estimator (educational)
+- [x] User-supplied cable ampacity derating and resistive voltage-drop screening
 - [ ] Code-compliant cable sizing and ampacity assessment
 - [x] Simplified prospective fault-current estimator
+- [x] Idealized earth-fault loop versus user-supplied disconnection-current screening
 - [ ] Protective-device selection, coordination and compliance study
 - [x] Idealized power factor correction estimator
 
 ## Phase 4 - Monitoring and Diagnostics
 - [ ] Energy Monitoring Dashboard
-- [ ] Measurement database
+- [x] SQLite measurement and troubleshooting record log
+- [ ] Measurement import and instrument integration
 - [ ] Graphs and charts
 - [x] Initial symptom-based fault-finding assistant with safety guidance
 - [ ] Comprehensive fault diagnosis and troubleshooting database

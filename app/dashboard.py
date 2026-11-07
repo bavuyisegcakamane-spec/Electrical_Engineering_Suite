@@ -20,9 +20,11 @@ TOOLS = {
     "Cables and protection": [
         ("Cable Voltage Drop", "open_cables"),
         ("Protection / Fault Current", "open_protection"),
+        ("Cable / Earthing / Protection Screening", "open_installation"),
         ("Electrical Fault-Finding Assistant", "open_fault_diagnosis")],
     "Projects and reporting": [
         ("Project Workspace", "open_workspace"),
+        ("Measurement and Fault History", "open_field_records"),
         ("Engineering PDF Reports", "open_reports")],
 }
 
