@@ -8,6 +8,25 @@ DISCLAIMER = ("EDUCATIONAL ESTIMATE ONLY. Not a certified engineering design. "
               "standards with a qualified professional before real-world use.")
 
 
+def create_project_pdf_report(path, project):
+    """Render each saved calculation as a separate clearly labeled report section."""
+    if not project.get('calculations'):
+        raise ValueError('Project has no calculations to report.')
+    inputs = {}
+    outputs = {}
+    assumptions = []
+    for number, entry in enumerate(project['calculations'], 1):
+        prefix = f"SECTION {number}: {entry['type']}"
+        inputs[prefix] = 'Inputs below'
+        inputs.update({f"{prefix} / {key}": value for key, value in entry['inputs'].items()})
+        outputs[prefix] = 'Results below'
+        outputs.update({f"{prefix} / {key}": value for key, value in entry['outputs'].items()})
+        assumptions.extend(f"{prefix}: {item}" for item in entry['assumptions'])
+    return create_pdf_report(path, project['name'],
+                             f"Project summary: {len(project['calculations'])} calculations",
+                             inputs, outputs, assumptions)
+
+
 def create_pdf_report(path, title, calculation, inputs, outputs, assumptions):
     if not title.strip() or not calculation.strip() or not inputs or not outputs:
         raise ValueError("Title, calculation, inputs and outputs are required.")

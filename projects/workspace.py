@@ -49,6 +49,23 @@ class Workspace:
                 os.unlink(temp_path)
         return target
 
+    def update_calculation(self, name, index, calculation, inputs, outputs, assumptions):
+        project = self.load(name)
+        if not 0 <= index < len(project["calculations"]):
+            raise IndexError("Calculation index out of range.")
+        project["calculations"][index] = {"type": calculation, "inputs": inputs,
+                                          "outputs": outputs, "assumptions": assumptions}
+        self.save(project)
+        return project
+
+    def delete_calculation(self, name, index):
+        project = self.load(name)
+        if not 0 <= index < len(project["calculations"]):
+            raise IndexError("Calculation index out of range.")
+        del project["calculations"][index]
+        self.save(project)
+        return project
+
     def add_calculation(self, name, calculation, inputs, outputs, assumptions):
         project = self.load(name)
         project["calculations"].append({"type": calculation, "inputs": inputs,

@@ -3,9 +3,9 @@ from pathlib import Path
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLineEdit,
                                QComboBox, QPushButton, QLabel, QListWidget,
                                QFileDialog, QMessageBox)
-from app.report_dialog import ReportDialog
+from app.report_dialog import ReportDialog, CONFIG
 from projects.workspace import Workspace
-from reports.pdf_report import create_pdf_report
+from reports.pdf_report import create_project_pdf_report
 
 
 class WorkspaceDialog(QDialog):
@@ -27,6 +27,16 @@ class WorkspaceDialog(QDialog):
         self.current = None
         self.entries = QListWidget()
         layout.addWidget(self.entries)
+        self.summary = QLabel("No project selected")
+        layout.addWidget(self.summary)
+        actions = QHBoxLayout()
+        edit = QPushButton("Edit selected")
+        edit.clicked.connect(self.edit_calculation)
+        actions.addWidget(edit)
+        remove = QPushButton("Delete selected")
+        remove.clicked.connect(self.delete_calculation)
+        actions.addWidget(remove)
+        layout.addLayout(actions)
         add = QPushButton("Add a calculation")
         add.clicked.connect(self.add_calculation)
         layout.addWidget(add)
@@ -56,18 +66,19 @@ class WorkspaceDialog(QDialog):
     def refresh_entries(self):
         self.entries.clear()
         if self.current:
+            counts = {}
             for index, entry in enumerate(self.current["calculations"], 1):
-                self.entries.addItem(f"{index}. {entry['type']}")
+                kind = entry['type']
+                counts[kind] = counts.get(kind, 0) + 1
+                self.entries.addItem(f"{index}. {kind}")
+            breakdown = ', '.join(f"{kind}: {count}" for kind, count in counts.items())
+            self.summary.setText(f"Project: {self.current['name']} | Calculations: {len(self.current['calculations'])}\n{breakdown}")
 
     def add_calculation(self):
         if not self.current:
             QMessageBox.warning(self, "No project", "Open or create a project first.")
             return
-        dialog = ReportDialog(self)
-        # Reuse its calculation fields but save into the project, not a standalone PDF.
-        dialog.findChildren(QPushButton)[0].setText("Add to project")
-        dialog.findChildren(QPushButton)[0].clicked.disconnect()
-        dialog.findChildren(QPushButton)[0].clicked.connect(dialog.accept)
+        dialog = self.calculation_editor()
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         try:
@@ -76,6 +87,64 @@ class WorkspaceDialog(QDialog):
             self.refresh_entries()
         except (ValueError, OSError) as exc:
             QMessageBox.warning(self, "Calculation error", str(exc))
+
+    def calculation_editor(self, entry=None):
+        dialog = ReportDialog(self)
+        button = dialog.findChildren(QPushButton)[0]
+        button.setText("Save calculation to project")
+        button.clicked.disconnect()
+        button.clicked.connect(lambda: self.validate_editor(dialog))
+        if entry:
+            dialog.selector.setCurrentText(entry['type'])
+            labels = CONFIG[entry['type']][0]
+            for i, label in enumerate(labels):
+                dialog.fields[i].setText(str(entry['inputs'][label]))
+        return dialog
+
+    def validate_editor(self, dialog):
+        try:
+            dialog.build_data()
+        except (ValueError, OverflowError, ZeroDivisionError) as exc:
+            QMessageBox.warning(dialog, "Invalid calculation", str(exc))
+            return
+        dialog.accept()
+
+    def edit_calculation(self):
+        if not self.current or self.entries.currentRow() < 0:
+            QMessageBox.warning(self, "No selection", "Select a calculation to edit.")
+            return
+        index = self.entries.currentRow()
+        entry = self.current['calculations'][index]
+        if entry['type'] not in CONFIG or any(k not in entry['inputs'] for k in CONFIG[entry['type']][0]):
+            QMessageBox.warning(self, "Unsupported snapshot", "This snapshot cannot be edited with the current calculator.")
+            return
+        dialog = self.calculation_editor(entry)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        try:
+            name, inputs, outputs, assumptions = dialog.build_data()
+            self.current = self.store.update_calculation(self.current['name'], index, name, inputs, outputs, assumptions)
+            self.refresh_entries()
+            self.entries.setCurrentRow(index)
+        except (ValueError, OSError, IndexError) as exc:
+            QMessageBox.warning(self, "Edit failed", str(exc))
+
+    def delete_calculation(self):
+        if not self.current or self.entries.currentRow() < 0:
+            QMessageBox.warning(self, "No selection", "Select a calculation to delete.")
+            return
+        index = self.entries.currentRow()
+        name = self.current['calculations'][index]['type']
+        reply = QMessageBox.question(self, "Confirm deletion", f"Delete calculation {index + 1}: {name}? This cannot be undone.",
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                     QMessageBox.StandardButton.No)
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            self.current = self.store.delete_calculation(self.current['name'], index)
+            self.refresh_entries()
+        except (ValueError, OSError, IndexError) as exc:
+            QMessageBox.warning(self, "Deletion failed", str(exc))
 
     def export_pdf(self):
         if not self.current or not self.current["calculations"]:
@@ -86,14 +155,8 @@ class WorkspaceDialog(QDialog):
             return
         if not path.lower().endswith(".pdf"):
             path += ".pdf"
-        inputs, outputs, assumptions = {}, {}, []
-        for index, entry in enumerate(self.current["calculations"], 1):
-            prefix = f"{index}. {entry['type']}"
-            inputs.update({f"{prefix} - {key}": value for key, value in entry['inputs'].items()})
-            outputs.update({f"{prefix} - {key}": value for key, value in entry['outputs'].items()})
-            assumptions.extend(f"{prefix}: {value}" for value in entry['assumptions'])
         try:
-            create_pdf_report(path, self.current['name'], "Combined engineering calculations", inputs, outputs, assumptions)
+            create_project_pdf_report(path, self.current)
         except (ValueError, OSError) as exc:
             QMessageBox.warning(self, "PDF error", str(exc))
             return
