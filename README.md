@@ -747,3 +747,7 @@ The catalogue includes an optional import button for five exact Schneider Electr
 ### Preliminary water pump panel study
 
 Open Electrical Equipment Catalogue and select Water pump panel study. Supports 1-4 three-phase motors rated 2.2-45 kW with DOL, star-delta, soft-starter and VFD starting-method labels. Estimates running current from user-assumed voltage, efficiency and power factor, and compares worst-case simultaneous running load against a configurable 150 A default main breaker. Outputs a conceptual BOM for common panel items and each motor branch. This is NOT an equipment-selection, motor starting, short-circuit, cable-sizing, coordination or SANS compliance calculation. Consult motor nameplate and OEM data, verify local conditions and have a qualified designer validate the complete panel.
+
+### Pump panel component database
+
+The Water Pump Panel Study can save draft panel designs and normalized component checklists in SQLite. Each design stores its voltage, main breaker rating, and up to four motors with starter type. The pump panel BOM distinguishes common components from per-motor components, includes quantities, required/review/optional classification, manufacturer catalogue links, sizing notes and unverified/reviewed/approved states. The default list is a conceptual design checklist: it does not establish actual equipment ratings, quantities for physical installation, regulatory compliance or safe operation. All items require review against the actual installation and manufacturer instructions.
