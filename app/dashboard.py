@@ -21,6 +21,7 @@ TOOLS = {
         ("Cable Voltage Drop", "open_cables"),
         ("Protection / Fault Current", "open_protection"),
         ("Cable / Earthing / Protection Screening", "open_installation"),
+        ("SANS 10142-1 Partial Installation Checks", "open_sans_screening"),
         ("Electrical Fault-Finding Assistant", "open_fault_diagnosis")],
     "Projects and reporting": [
         ("Project Workspace", "open_workspace"),

@@ -543,7 +543,8 @@ Checked items represent implemented functionality, not engineering certification
 ## SANS 10142-1 voltage scope
 - [x] SANS 10142-1:2017 Edition 2, clause 1.2(a): installation screening voltage scope up to and including **1000 V AC** and **1500 V DC**.
 - [x] AC/DC voltage validation in cable screening; earth-fault loop screening remains AC-only.
-- [ ] Edition-specific full compliance rules, DC protection studies and validated cable-selection tables.
+- [x] Initial clause-referenced partial numeric checks for corrected ampacity, voltage drop and protective-device ratings (6.2.5, 6.2.7, 6.7.1.1); user-supplied table/device values, no compliance verdict.
+- [ ] Full validated cable tables (6.2(a)-6.9(b)), correction tables (6.10-6.19), earthing/disconnection studies, DC protection and complete edition-specific compliance rules.
 
 The reference is the uploaded 2017 Edition 2, not necessarily the edition applicable to a new installation. Scope validation does not establish electrical compliance.
 
