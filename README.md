@@ -536,73 +536,73 @@ ElectricalEngineeringSuite/
 
 ---
 
-# 🔄 Development Roadmap
+# Development Roadmap (implementation status)
 
-## Phase 1 — Foundation
+Checked items represent implemented functionality, not engineering certification. Partial modules are identified explicitly.
 
-* [ ] Create project structure
-* [ ] Create application entry point
-* [ ] Create main interface
-* [ ] Create database
-* [ ] Create calculation engine
-* [ ] Implement unit conversion
-* [ ] Implement input validation
-* [ ] Create error handling
+## Phase 1 - Foundation
+- [x] Create project structure and Python entry point
+- [x] Create PySide6 main interface
+- [x] Initialize SQLite database
+- [x] Implement calculation engines and unit conversion
+- [x] Add input validation and user-facing error handling
 
-## Phase 2 — Core Engineering Tools
+## Phase 2 - Core Engineering Tools
+- [x] Series and parallel Circuit Analyzer
+- [x] Mixed series-parallel Circuit Analyzer
+- [x] Engineering calculator (initial tools)
+- [ ] Complete Engineering Toolbox (remaining utilities)
+- [ ] Transformer Calculator
+- [ ] General calculation history
 
-* [ ] Circuit Analyzer
-* [ ] Engineering Toolbox
-* [ ] Transformer Calculator
-* [ ] Calculation history
+## Phase 3 - Electrical System Design
+- [x] Electrical Load Calculator (balanced AC estimates)
+- [x] Three-phase Motor Analysis (steady-state)
+- [ ] Motor selection and starting analysis
+- [x] Cable resistive voltage-drop estimator (educational)
+- [ ] Code-compliant cable sizing and ampacity assessment
+- [x] Simplified prospective fault-current estimator
+- [ ] Protective-device selection, coordination and compliance study
+- [x] Idealized power factor correction estimator
 
-## Phase 3 — Electrical System Design
+## Phase 4 - Monitoring and Diagnostics
+- [ ] Energy Monitoring Dashboard
+- [ ] Measurement database
+- [ ] Graphs and charts
+- [ ] Fault Diagnosis and troubleshooting database
+- [ ] Alerts
 
-* [ ] Electrical Load Calculator
-* [ ] Motor Selection
-* [ ] Cable calculations
-* [ ] Voltage-drop calculations
-* [ ] Protection calculations
+## Phase 5 - AI
+- [ ] AI Engineering Assistant
+- [ ] Engineering question answering
+- [ ] Calculation assistance
+- [ ] Fault explanation
+- [ ] Natural-language interface
 
-## Phase 4 — Monitoring & Diagnostics
+## Phase 6 - Projects and Reports
+- [x] Create and reopen named projects (local JSON files)
+- [x] Save multiple calculation snapshots per project
+- [x] Edit and delete project calculations (deletion confirmation)
+- [x] Project summary and calculation counts
+- [x] Single-calculation PDF reports
+- [x] Combined project PDF reports with labeled sections and safety disclaimer
+- [ ] Database-backed project management and general calculation history
+- [ ] Excel exports
+- [ ] CSV exports
 
-* [ ] Energy Monitoring Dashboard
-* [ ] Measurement database
-* [ ] Graphs and charts
-* [ ] Fault Diagnosis
-* [ ] Troubleshooting database
-* [ ] Alerts
+## Phase 7 - Testing and Deployment
+- [x] Automated unit tests for implemented calculators
+- [x] Integration tests for project storage and PDF generation
+- [x] Offscreen GUI smoke tests
+- [ ] Independent engineering standards validation
+- [ ] Security review
+- [ ] Complete user documentation
+- [ ] Application packaging
+- [ ] Release version
 
-## Phase 5 — AI
-
-* [ ] AI Engineering Assistant
-* [ ] Engineering question answering
-* [ ] Calculation assistance
-* [ ] Fault explanation
-* [ ] Natural-language interface
-
-## Phase 6 — Projects & Reports
-
-* [ ] Project management
-* [ ] Save/load projects
-* [ ] Calculation history
-* [ ] PDF reports
-* [ ] Excel exports
-* [ ] CSV exports
-
-## Phase 7 — Testing & Deployment
-
-* [ ] Unit tests
-* [ ] Integration tests
-* [ ] User interface testing
-* [ ] Calculation validation
-* [ ] Security review
-* [ ] Documentation
-* [ ] Application packaging
-* [ ] Release version
+**Current implementation:** Python / PySide6 desktop app with SQLite initialization, calculation modules, local JSON project workspace and PDF reports. Engineering calculations are preliminary educational estimates; they do not establish electrical safety or regulatory compliance.
 
 ---
-
 # 🧪 Testing Philosophy
 
 Electrical calculations must be treated differently from ordinary application features.
