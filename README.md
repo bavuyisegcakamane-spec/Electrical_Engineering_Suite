@@ -553,7 +553,8 @@ Checked items represent implemented functionality, not engineering certification
 - [x] Mixed series-parallel Circuit Analyzer
 - [x] Engineering calculator (initial tools)
 - [ ] Complete Engineering Toolbox (remaining utilities)
-- [ ] Transformer Calculator
+- [x] Ideal single-phase Transformer Calculator (turns ratio, voltage and rated currents)
+- [ ] Advanced transformer losses, regulation and protection
 - [ ] General calculation history
 
 ## Phase 3 - Electrical System Design

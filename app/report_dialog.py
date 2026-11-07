@@ -6,6 +6,7 @@ from calculations.motors import analyze_motor
 from calculations.power_factor import estimate_correction
 from calculations.cables import estimate_voltage_drop
 from calculations.protection import estimate_fault_current
+from calculations.transformers import analyze_transformer
 from reports.pdf_report import create_pdf_report
 
 # Field labels include their units. Input ordering matches each calculation engine.
@@ -16,6 +17,9 @@ CONFIG = {
     "Three-phase motor": (["Output (kW)", "Voltage L-L (V)", "Efficiency", "Power factor", "Speed (RPM)"],
                           ["7.5", "400", "0.9", "0.85", "1450"], analyze_motor,
                           ["Balanced three-phase rated steady-state", "No starting or protection calculations"]),
+    "Ideal transformer": (["Primary voltage (V)", "Primary turns", "Secondary turns", "Rated apparent power (VA)"],
+                          ["230", "1000", "500", "1000"], analyze_transformer,
+                          ["Single-phase ideal steady-state AC transformer", "No losses, saturation, regulation or protection model"]),
     "Power factor correction": (["Real power (kW)", "Voltage L-L (V)", "Initial PF", "Target PF"],
                                 ["100", "400", "0.8", "0.95"], estimate_correction,
                                 ["Balanced three-phase, lagging PF", "Ideal correction; no harmonic or resonance analysis"]),

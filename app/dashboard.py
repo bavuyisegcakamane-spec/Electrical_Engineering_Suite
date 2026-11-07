@@ -13,6 +13,7 @@ TOOLS = {
     "Loads and machines": [
         ("Electrical Load Calculator", "open_loads"),
         ("Motor Analysis", "open_motors"),
+        ("Transformer Calculator", "open_transformers"),
         ("Power Factor Correction", "open_power_factor")],
     "Cables and protection": [
         ("Cable Voltage Drop", "open_cables"),

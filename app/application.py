@@ -31,6 +31,7 @@ from app.power_factor_dialog import PowerFactorDialog
 from app.report_dialog import ReportDialog
 from app.workspace_dialog import WorkspaceDialog
 from app.dashboard import Dashboard
+from app.transformer_dialog import TransformerDialog
 
 
 class MainWindow(QMainWindow):
@@ -81,6 +82,11 @@ class MainWindow(QMainWindow):
     def open_motors(self):
         """Open three-phase motor analysis."""
         dialog = MotorDialog(self)
+        dialog.exec()
+
+    def open_transformers(self):
+        """Open ideal single-phase transformer calculator."""
+        dialog = TransformerDialog(self)
         dialog.exec()
 
     def open_cables(self):
