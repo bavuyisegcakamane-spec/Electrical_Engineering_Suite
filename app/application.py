@@ -29,6 +29,7 @@ from app.cable_dialog import CableDialog
 from app.protection_dialog import ProtectionDialog
 from app.power_factor_dialog import PowerFactorDialog
 from app.report_dialog import ReportDialog
+from app.workspace_dialog import WorkspaceDialog
 
 
 class MainWindow(QMainWindow):
@@ -86,6 +87,7 @@ class MainWindow(QMainWindow):
         protection_button = QPushButton("Protection / Fault Current")
         pf_button = QPushButton("Power Factor Correction")
         report_button = QPushButton("Engineering PDF Reports")
+        workspace_button = QPushButton("Project Workspace")
 
         database_button = QPushButton(
             "Database"
@@ -108,6 +110,7 @@ class MainWindow(QMainWindow):
         protection_button.clicked.connect(self.open_protection)
         pf_button.clicked.connect(self.open_power_factor)
         report_button.clicked.connect(self.open_reports)
+        workspace_button.clicked.connect(self.open_workspace)
         database_button.clicked.connect(self.open_database)
         settings_button.clicked.connect(self.open_settings)
         exit_button.clicked.connect(self.close)
@@ -129,6 +132,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(protection_button)
         layout.addWidget(pf_button)
         layout.addWidget(report_button)
+        layout.addWidget(workspace_button)
 
         layout.addWidget(
             database_button
@@ -194,6 +198,11 @@ class MainWindow(QMainWindow):
     def open_reports(self):
         """Open calculation-based PDF report generator."""
         dialog = ReportDialog(self)
+        dialog.exec()
+
+    def open_workspace(self):
+        """Open saved engineering project workspace."""
+        dialog = WorkspaceDialog(self)
         dialog.exec()
 
     def open_database(self):
