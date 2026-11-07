@@ -8,6 +8,8 @@
 
 """Application-wide settings."""
 
+import os
+import sys
 from pathlib import Path
 
 
@@ -20,8 +22,11 @@ WINDOW_HEIGHT = 650
 # Project root directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Data directory
-DATA_DIR = BASE_DIR / "data"
+# Installed builds store writable data in the user's profile.
+if getattr(sys, 'frozen', False):
+    DATA_DIR = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'raw.bytes' / 'ElectricalEngineeringSuite'
+else:
+    DATA_DIR = BASE_DIR / 'data'
 
 # SQLite database
 DATABASE_PATH = DATA_DIR / "electrical_engineering.db"

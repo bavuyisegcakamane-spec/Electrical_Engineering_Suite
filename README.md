@@ -727,3 +727,7 @@ The application should prioritize **accuracy, usability, maintainability, and sa
 ### raw.bytes source attribution guard
 
 The first-party Python files carry a raw.bytes terminal-style attribution comment. Run `python tools/branding_guard.py --fix` after creating new Python files, then `python tools/branding_guard.py --check` before committing. GitHub Actions checks the marker on pushes and pull requests. Enable branch protection for `main` and require the `attribution` status check to block unbranded changes. These markings do not replace license rights and do not apply to third-party code or standards.
+
+### Windows distribution (raw.bytes)
+
+Run `powershell -ExecutionPolicy Bypass -File installer/build_windows.ps1` on Windows. The script checks source attribution and builds a portable `dist/ElectricalEngineeringSuite/ElectricalEngineeringSuite.exe` using PyInstaller. If Inno Setup 6 is installed, it also builds a per-user branded Setup.exe under `dist/installer`. Installed SQLite data is stored under `%LOCALAPPDATA%/raw.bytes/ElectricalEngineeringSuite` so uninstalling/upgrading the app does not overwrite it. Build outputs are unsigned; sign releases with a trusted code-signing certificate before public distribution. The installer does not include third-party proprietary standards documents.
