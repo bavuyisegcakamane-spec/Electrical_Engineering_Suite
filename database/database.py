@@ -39,13 +39,20 @@ class Database:
     def close(self):
         """Close the database connection."""
 
-        if self.connection:
+        if self.connection is not None:
             self.connection.close()
-            
+            self.connection = None
+
     def is_connected(self) -> bool:
         """Return True if the database connection is open."""
 
-        return self.connection is not None
+        if self.connection is None:
+            return False
+        try:
+            self.connection.execute("SELECT 1")
+            return True
+        except sqlite3.ProgrammingError:
+            return False
 
     def execute(self, query, parameters=()):
         """Execute a SQL query."""

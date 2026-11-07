@@ -20,6 +20,7 @@ from app.settings import (
 )
 
 from database.database import Database
+from app.calculator_dialog import CalculatorDialog
 
 
 class MainWindow(QMainWindow):
@@ -81,9 +82,10 @@ class MainWindow(QMainWindow):
             "Exit"
         )
 
-        exit_button.clicked.connect(
-            self.close
-        )
+        calculations_button.clicked.connect(self.open_calculations)
+        database_button.clicked.connect(self.open_database)
+        settings_button.clicked.connect(self.open_settings)
+        exit_button.clicked.connect(self.close)
 
         layout.addWidget(title)
         layout.addWidget(version)
@@ -118,7 +120,8 @@ class MainWindow(QMainWindow):
     def open_calculations(self):
         """Open the engineering calculations view."""
 
-        self.show_placeholder("Engineering Calculations")
+        dialog = CalculatorDialog(self)
+        dialog.exec()
 
     def open_database(self):
         """Open the database view."""
