@@ -751,3 +751,7 @@ Open Electrical Equipment Catalogue and select Water pump panel study. Supports 
 ### Pump panel component database
 
 The Water Pump Panel Study can save draft panel designs and normalized component checklists in SQLite. Each design stores its voltage, main breaker rating, and up to four motors with starter type. The pump panel BOM distinguishes common components from per-motor components, includes quantities, required/review/optional classification, manufacturer catalogue links, sizing notes and unverified/reviewed/approved states. The default list is a conceptual design checklist: it does not establish actual equipment ratings, quantities for physical installation, regulatory compliance or safe operation. All items require review against the actual installation and manufacturer instructions.
+
+### Browse pump panel components from the Database page
+
+Open Electrical Equipment Catalogue > Browse water pump panel component database and saved BOMs. The All panel components tab lists and searches generic component requirements. The Saved panel BOMs tab shows drafts created by the Water pump panel study and each common/per-pump BOM row, quantity, requirement classification, selected catalogue ID and verification status. This is a read-only browser; model assignments and electrical suitability are not automatically approved.

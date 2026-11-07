@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,
 from database.equipment_catalog import EquipmentCatalog
 from database.manufacturer_products import seed_manufacturer_products
 from app.pump_panel_dialog import PumpPanelDialog
+from app.pump_components_dialog import PumpComponentsDialog
 from database.component_taxonomy import COMPONENT_GROUPS, ALL_COMPONENT_TYPES
 from app.branding import BRAND_SIGNATURE
 
@@ -33,6 +34,9 @@ class EquipmentCatalogDialog(QDialog):
         panel_button = QPushButton('Water pump panel study (1-4 pumps, DOL / Star-delta / Soft starter / VFD)')
         panel_button.clicked.connect(self.open_pump_panel)
         layout.addWidget(panel_button)
+        components_button = QPushButton('Browse water pump panel component database and saved BOMs')
+        components_button.clicked.connect(self.open_pump_components)
+        layout.addWidget(components_button)
         layout.addWidget(QLabel('Component types are a reference taxonomy, not verified products. Check exact manufacturer datasheets for ratings.'))
         browser = QHBoxLayout()
         self.component_group = QComboBox()
@@ -88,6 +92,10 @@ class EquipmentCatalogDialog(QDialog):
         add_button.clicked.connect(self.add_record)
         layout.addWidget(add_button)
         self.refresh()
+
+    def open_pump_components(self):
+        dialog = PumpComponentsDialog(self.catalog.db, self)
+        dialog.exec()
 
     def open_pump_panel(self):
         dialog = PumpPanelDialog(self, self.catalog.db)
