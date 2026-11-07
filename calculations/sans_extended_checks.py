@@ -1,3 +1,11 @@
+#  ____      ___        __  ____   _______ _____ ____
+# |  _ \    / \ \      / / | __ ) |__   __|_   _/ ___|
+# | |_) |  / _ \ \ /\ / /  |  _ \    | |    | | \___ \
+# |  _ <  / ___ \ V  V /   | |_) |   | |    | |  ___) |
+# |_| \_\/_/   \_\_/\_/    |____/    |_|    |_| |____/
+#              . bytes  |  raw.bytes  |  (c) 2026
+# Developer signature: raw.bytes. Third-party rights remain with their owners.
+
 """Clause-referenced limited SANS 10142-1:2017 Ed 2 engineering checks.
 
 Exact tabulated values only; no automatic compliance certification.

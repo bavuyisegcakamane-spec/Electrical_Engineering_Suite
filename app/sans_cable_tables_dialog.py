@@ -1,3 +1,11 @@
+#  ____      ___        __  ____   _______ _____ ____
+# |  _ \    / \ \      / / | __ ) |__   __|_   _/ ___|
+# | |_) |  / _ \ \ /\ / /  |  _ \    | |    | | \___ \
+# |  _ <  / ___ \ V  V /   | |_) |   | |    | |  ___) |
+# |_| \_\/_/   \_\_/\_/    |____/    |_|    |_| |____/
+#              . bytes  |  raw.bytes  |  (c) 2026
+# Developer signature: raw.bytes. Third-party rights remain with their owners.
+
 """Narrow, explicitly verified SANS 10142-1:2017 cable table subset."""
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QComboBox, QLabel, QPushButton, QTextEdit, QMessageBox
 from calculations.sans_reference_tables import (BURIED_PVC_COPPER_AMPACITY, SOIL_TEMPERATURE_70C,

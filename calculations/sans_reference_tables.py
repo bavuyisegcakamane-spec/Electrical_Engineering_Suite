@@ -1,3 +1,11 @@
+#  ____      ___        __  ____   _______ _____ ____
+# |  _ \    / \ \      / / | __ ) |__   __|_   _/ ___|
+# | |_) |  / _ \ \ /\ / /  |  _ \    | |    | | \___ \
+# |  _ <  / ___ \ V  V /   | |_) |   | |    | |  ___) |
+# |_| \_\/_/   \_\_/\_/    |____/    |_|    |_| |____/
+#              . bytes  |  raw.bytes  |  (c) 2026
+# Developer signature: raw.bytes. Third-party rights remain with their owners.
+
 """Verified limited lookups from SANS 10142-1:2017 Edition 2.
 
 Only explicitly transcribed rows. No interpolation, extrapolation, or compliance verdict.
