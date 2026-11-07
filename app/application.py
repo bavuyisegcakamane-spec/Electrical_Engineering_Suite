@@ -38,6 +38,7 @@ from app.advanced_equipment_dialog import AdvancedEquipmentDialog
 from app.installation_dialog import InstallationDialog
 from app.sans_screening_dialog import SANSScreeningDialog
 from app.sans_cable_tables_dialog import SANSCableTablesDialog
+from app.sans_extended_dialog import SANSExtendedDialog
 from app.field_records_dialog import FieldRecordsDialog
 
 
@@ -106,6 +107,10 @@ class MainWindow(QMainWindow):
 
     def open_advanced_equipment(self):
         dialog = AdvancedEquipmentDialog(self)
+        dialog.exec()
+
+    def open_sans_extended(self):
+        dialog = SANSExtendedDialog(self)
         dialog.exec()
 
     def open_sans_cable_tables(self):
