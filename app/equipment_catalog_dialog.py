@@ -8,9 +8,13 @@
 
 """Local, source-traceable electrical equipment catalogue UI."""
 import webbrowser
+from pathlib import Path
+from database.equipment_import import import_equipment_csv
 from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QPushButton,
-                               QTableWidget,QTableWidgetItem,QMessageBox,QFormLayout,QComboBox)
+                               QTableWidget,QTableWidgetItem,QMessageBox,QFormLayout,QComboBox,QFileDialog)
 from database.equipment_catalog import EquipmentCatalog
+from database.manufacturer_products import seed_manufacturer_products
+from database.component_taxonomy import COMPONENT_GROUPS, ALL_COMPONENT_TYPES
 from app.branding import BRAND_SIGNATURE
 
 
@@ -25,7 +29,18 @@ class EquipmentCatalogDialog(QDialog):
         signature.setObjectName('rawBytesSignature')
         signature.setStyleSheet('font-size: 18px; font-weight: 700; letter-spacing: 1px;')
         layout.addWidget(signature)
-        layout.addWidget(QLabel('Official manufacturer product families; ratings are not inferred. Verify exact SKU datasheets before design.'))
+        layout.addWidget(QLabel('Component types are a reference taxonomy, not verified products. Check exact manufacturer datasheets for ratings.'))
+        browser = QHBoxLayout()
+        self.component_group = QComboBox()
+        self.component_group.addItems(COMPONENT_GROUPS)
+        self.component_group.currentTextChanged.connect(self.update_component_types)
+        self.component_type = QComboBox()
+        self.component_type.setMinimumWidth(320)
+        browser.addWidget(QLabel('Browse component group'))
+        browser.addWidget(self.component_group)
+        browser.addWidget(self.component_type)
+        layout.addLayout(browser)
+        self.update_component_types()
         actions = QHBoxLayout()
         self.query = QLineEdit()
         self.query.setPlaceholderText('Search manufacturer, model or category')
@@ -34,6 +49,12 @@ class EquipmentCatalogDialog(QDialog):
         seed = QPushButton('Import official source families')
         seed.clicked.connect(self.seed)
         actions.addWidget(seed)
+        products_button = QPushButton('Import reviewed manufacturer models')
+        products_button.clicked.connect(self.seed_products)
+        actions.addWidget(products_button)
+        import_button = QPushButton('Import reviewed manufacturer CSV')
+        import_button.clicked.connect(self.import_csv)
+        actions.addWidget(import_button)
         layout.addLayout(actions)
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(('Manufacturer','Family / Model','Category','Description','Source URL'))
@@ -50,14 +71,41 @@ class EquipmentCatalogDialog(QDialog):
         self.fields = {}
         for key, label in (('manufacturer','Manufacturer'),('model','Exact model / family'),
                            ('category','Category'),('description','Description'),('source_url','Official HTTPS source URL')):
-            edit = QLineEdit()
+            edit = QComboBox() if key == 'category' else QLineEdit()
+            if key == 'category':
+                edit.setEditable(True)
+                edit.addItems(ALL_COMPONENT_TYPES)
             self.fields[key] = edit
             form.addRow(label, edit)
         layout.addLayout(form)
+        self.component_type.currentTextChanged.connect(self.fields['category'].setCurrentText)
+        self.fields['category'].setCurrentText(self.component_type.currentText())
         add_button = QPushButton('Add sourced equipment record')
         add_button.clicked.connect(self.add_record)
         layout.addWidget(add_button)
         self.refresh()
+
+    def update_component_types(self, *_):
+        self.component_type.clear()
+        self.component_type.addItems(COMPONENT_GROUPS[self.component_group.currentText()])
+
+    def import_csv(self):
+        filename, _ = QFileDialog.getOpenFileName(self, 'Choose reviewed equipment CSV', '', 'CSV files (*.csv)')
+        if not filename:
+            return
+        try:
+            count = import_equipment_csv(self.catalog, Path(filename).read_text(encoding='utf-8-sig'))
+        except (ValueError, OSError) as exc:
+            QMessageBox.warning(self, 'Import rejected', str(exc))
+            return
+        self.refresh()
+        QMessageBox.information(self, 'Import finished', f'Processed {count} source-referenced rows. Manufacturer ratings are not independently verified.')
+
+    def seed_products(self):
+        count = seed_manufacturer_products(self.catalog)
+        self.refresh()
+        QMessageBox.information(self, 'Manufacturer references',
+                                f'Processed {count} model references. Recheck datasheets and regional product status before design.')
 
     def seed(self):
         self.catalog.seed_official_sources()
@@ -77,7 +125,8 @@ class EquipmentCatalogDialog(QDialog):
 
     def add_record(self):
         try:
-            self.catalog.add(**{key: edit.text() for key, edit in self.fields.items()})
+            self.catalog.add(**{key: (edit.currentText() if isinstance(edit, QComboBox) else edit.text())
+                                for key, edit in self.fields.items()})
         except ValueError as exc:
             QMessageBox.warning(self,'Invalid equipment record',str(exc))
             return

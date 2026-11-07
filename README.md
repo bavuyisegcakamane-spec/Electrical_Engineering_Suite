@@ -731,3 +731,15 @@ The first-party Python files carry a raw.bytes terminal-style attribution commen
 ### Windows distribution (raw.bytes)
 
 Run `powershell -ExecutionPolicy Bypass -File installer/build_windows.ps1` on Windows. The script checks source attribution and builds a portable `dist/ElectricalEngineeringSuite/ElectricalEngineeringSuite.exe` using PyInstaller. If Inno Setup 6 is installed, it also builds a per-user branded Setup.exe under `dist/installer`. Installed SQLite data is stored under `%LOCALAPPDATA%/raw.bytes/ElectricalEngineeringSuite` so uninstalling/upgrading the app does not overwrite it. Build outputs are unsigned; sign releases with a trusted code-signing certificate before public distribution. The installer does not include third-party proprietary standards documents.
+
+### Import reviewed equipment CSV
+
+The Equipment Catalogue page can import locally reviewed CSV data from manufacturer datasheets or permitted exports. The exact CSV columns are `manufacturer,model,category,description,source_url,source_type,source_checked_utc,specifications_json`. `source_checked_utc` is an ISO 8601 timezone-aware timestamp supplied by the reviewer, not an independent verification by the app; `specifications_json` is a flat JSON object such as `{"rated_current_a":16}`. Use model-specific manufacturer HTTPS sources and retain the datasheet revision in the description. Imports are atomic and do not overwrite existing records. No web scraping or automatic verification is performed.
+
+### Electrical component taxonomy
+
+The Electrical Equipment Catalogue now includes 94 component types in seven groups: protection, switching/control, distribution, cables/wiring, machines/energy, sensing/automation, and earthing/safety. Select a group and component type to prefill the category when adding a sourced product. The taxonomy describes product types and suggested technical fields, not verified manufacturer models or SANS compliance. Import model-specific records only with traceable manufacturer sources and evidence.
+
+### Reviewed manufacturer model starter records
+
+The catalogue includes an optional import button for five exact Schneider Electric model references checked against manufacturer product pages on 2026-11-07: A9F74116 (MCB, discontinued in UAE), A9R11225 (RCCB, discontinued in Indonesia), LC1D09P7 (contactor), LRD08 (thermal overload relay), RXM2AB2P7 (plug-in control relay). Records contain model-specific fields and source links. Commercial status is regional and may change; never assume suitability, availability or compliance without checking the current manufacturer datasheet and applicable standards. Importing is idempotent.
