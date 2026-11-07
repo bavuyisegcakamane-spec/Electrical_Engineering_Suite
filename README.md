@@ -739,3 +739,7 @@ The Equipment Catalogue page can import locally reviewed CSV data from manufactu
 ### Electrical component taxonomy
 
 The Electrical Equipment Catalogue now includes 94 component types in seven groups: protection, switching/control, distribution, cables/wiring, machines/energy, sensing/automation, and earthing/safety. Select a group and component type to prefill the category when adding a sourced product. The taxonomy describes product types and suggested technical fields, not verified manufacturer models or SANS compliance. Import model-specific records only with traceable manufacturer sources and evidence.
+
+### Reviewed manufacturer model starter records
+
+The catalogue includes an optional import button for five exact Schneider Electric model references checked against manufacturer product pages on 2026-11-07: A9F74116 (MCB, discontinued in UAE), A9R11225 (RCCB, discontinued in Indonesia), LC1D09P7 (contactor), LRD08 (thermal overload relay), RXM2AB2P7 (plug-in control relay). Records contain model-specific fields and source links. Commercial status is regional and may change; never assume suitability, availability or compliance without checking the current manufacturer datasheet and applicable standards. Importing is idempotent.
