@@ -8,8 +8,11 @@
 
 """Pump panel component requirements and saved panel BOM browser."""
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-    QPushButton, QTableWidget, QTableWidgetItem, QComboBox, QTabWidget, QWidget)
+    QPushButton, QTableWidget, QTableWidgetItem, QComboBox, QTabWidget, QWidget,
+    QMessageBox, QPlainTextEdit)
 from database.pump_panel_database import PumpPanelDatabase
+from database.equipment_catalog import EquipmentCatalog
+from database.pump_manufacturer_models import seed_pump_manufacturer_models
 from app.branding import BRAND_SIGNATURE
 
 
@@ -19,6 +22,7 @@ class PumpComponentsDialog(QDialog):
         self.setWindowTitle('raw.bytes | Pump Panel Component Database')
         self.resize(1100, 740)
         self.repo = PumpPanelDatabase(database)
+        self.catalog = EquipmentCatalog(database)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(BRAND_SIGNATURE))
         layout.addWidget(QLabel('Component requirements are generic. Manufacturer models and electrical ratings must be verified before selection.'))
@@ -45,8 +49,48 @@ class PumpComponentsDialog(QDialog):
         self.bom_table.setHorizontalHeaderLabels(('Pump', 'Component', 'Qty', 'Requirement', 'Selected catalogue ID', 'Verification'))
         self.bom_table.setColumnWidth(1, 440)
         panels_layout.addWidget(self.bom_table)
+        model_row = QHBoxLayout()
+        self.models = QComboBox()
+        model_row.addWidget(QLabel('Manufacturer model'))
+        model_row.addWidget(self.models)
+        load_models = QPushButton('Load manufacturer starter references')
+        load_models.clicked.connect(self.load_models)
+        model_row.addWidget(load_models)
+        panels_layout.addLayout(model_row)
+        self.notes = QPlainTextEdit()
+        self.notes.setPlaceholderText('Required sizing and coordination review notes (unverified)')
+        self.notes.setMaximumHeight(75)
+        panels_layout.addWidget(self.notes)
+        assign = QPushButton('Assign selected model to highlighted BOM row (UNVERIFIED)')
+        assign.clicked.connect(self.assign_model)
+        panels_layout.addWidget(assign)
         tabs.addTab(panels_page, 'Saved panel BOMs')
-        self.refresh_types(); self.refresh_panels()
+        self.refresh_types(); self.refresh_panels(); self.refresh_models()
+
+    def load_models(self):
+        seed_pump_manufacturer_models(self.catalog)
+        self.refresh_models()
+        QMessageBox.information(self, 'Manufacturer references',
+            'Four sourced starter/protection models imported. Check suitability and availability before selection.')
+
+    def refresh_models(self):
+        self.models.clear()
+        for row in self.catalog.search(limit=500):
+            self.models.addItem(f'{row["manufacturer"]} | {row["model"]} | {row["category"]}',row['id'])
+
+    def assign_model(self):
+        index = self.bom_table.currentRow()
+        if index < 0 or self.models.currentData() is None:
+            QMessageBox.warning(self, 'Select a row and model', 'Select a saved panel BOM row and a manufacturer model first.')
+            return
+        bom_id = self.bom_rows[index]['bom_id']
+        try:
+            self.repo.assign_catalog_model(bom_id, self.models.currentData(), self.notes.toPlainText())
+        except (ValueError, TypeError) as exc:
+            QMessageBox.warning(self, 'Cannot assign model', str(exc))
+            return
+        self.refresh_bom()
+        QMessageBox.information(self, 'Model linked', 'Model assigned as UNVERIFIED. Check component function, ratings and coordination before use.')
 
     def refresh_types(self, *_):
         rows = self.repo.list_component_types(self.search.text())
@@ -66,6 +110,7 @@ class PumpComponentsDialog(QDialog):
     def refresh_bom(self, *_):
         panel_id = self.panel.currentData()
         rows = self.repo.get_bom(panel_id) if panel_id is not None else []
+        self.bom_rows = rows
         self.bom_table.setRowCount(len(rows))
         for i, row in enumerate(rows):
             values = (('Common' if row['motor_position'] is None else f'Pump {row["motor_position"]}'),

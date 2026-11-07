@@ -132,11 +132,11 @@ class PumpPanelDatabase:
 
     def get_bom(self, panel_id):
         rows = self.db.execute('''SELECT b.motor_position,t.name,b.quantity,b.requirement,
-            b.selected_catalog_id,b.verification_status,b.sizing_notes
+            b.selected_catalog_id,b.verification_status,b.sizing_notes,b.id
             FROM pump_panel_bom b JOIN pump_component_types t ON t.id=b.component_type_id
             WHERE b.panel_id=? ORDER BY b.motor_position,t.name''',(panel_id,)).fetchall()
         return [dict(zip(('motor_position','component','quantity','requirement',
-                          'selected_catalog_id','verification_status','sizing_notes'),row)) for row in rows]
+                          'selected_catalog_id','verification_status','sizing_notes','bom_id'),row)) for row in rows]
 
     def list_panels(self):
         rows = self.db.execute('''SELECT d.id,d.title,d.voltage_v,d.main_breaker_a,

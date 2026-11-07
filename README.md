@@ -755,3 +755,7 @@ The Water Pump Panel Study can save draft panel designs and normalized component
 ### Browse pump panel components from the Database page
 
 Open Electrical Equipment Catalogue > Browse water pump panel component database and saved BOMs. The All panel components tab lists and searches generic component requirements. The Saved panel BOMs tab shows drafts created by the Water pump panel study and each common/per-pump BOM row, quantity, requirement classification, selected catalogue ID and verification status. This is a read-only browser; model assignments and electrical suitability are not automatically approved.
+
+### Manufacturer pump starter model selection
+
+The Pump Panel Component Database browser can import four source-referenced Schneider Electric starter/protection models: ATV320U22N4C (2.2 kW drive), ATV320D22N4C (22 kW drive), ATS22D17Q (7.5 kW at 400 V soft starter; manufacturer US page schedules discontinuation in 2027), and GV2ME14 (6-10 A thermal-magnetic motor circuit breaker). Each reference stores its official manufacturer product URL and checked date. Select a saved panel BOM row and model, add sizing notes, then assign; status remains UNVERIFIED. This is a record link only, NOT a compatibility or protection coordination determination. Do not select without current OEM instructions and full engineering checks.
