@@ -735,3 +735,7 @@ Run `powershell -ExecutionPolicy Bypass -File installer/build_windows.ps1` on Wi
 ### Import reviewed equipment CSV
 
 The Equipment Catalogue page can import locally reviewed CSV data from manufacturer datasheets or permitted exports. The exact CSV columns are `manufacturer,model,category,description,source_url,source_type,source_checked_utc,specifications_json`. `source_checked_utc` is an ISO 8601 timezone-aware timestamp supplied by the reviewer, not an independent verification by the app; `specifications_json` is a flat JSON object such as `{"rated_current_a":16}`. Use model-specific manufacturer HTTPS sources and retain the datasheet revision in the description. Imports are atomic and do not overwrite existing records. No web scraping or automatic verification is performed.
+
+### Electrical component taxonomy
+
+The Electrical Equipment Catalogue now includes 94 component types in seven groups: protection, switching/control, distribution, cables/wiring, machines/energy, sensing/automation, and earthing/safety. Select a group and component type to prefill the category when adding a sourced product. The taxonomy describes product types and suggested technical fields, not verified manufacturer models or SANS compliance. Import model-specific records only with traceable manufacturer sources and evidence.
