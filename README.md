@@ -547,6 +547,7 @@ Checked items represent implemented functionality, not engineering certification
 - [x] Verified limited Table 6.8 buried copper PVC armoured ampacity rows, Table 6.11 soil-temperature factors and Table 6.16 burial-depth factors, with exact-value lookup and explicit missing-factor warnings.
 - [x] Additional verified Table 6.10 PVC ambient, Table 6.12 soil resistivity and Table 6.13 selected grouping factors; interactive partial buried-cable factors and earthing/protection review.
 - [x] Preliminary device rating, breaking capacity, RCD rating and user-provided AC fault-loop/trip-time comparison, without automatic compliance certification.
+- [x] Evidence and inspection register: traceable 17-item review checklist, unresolved issues and JSON export/import, with no compliance certificate or automatic signoff.
 - [ ] Complete cable tables (6.2(a)-6.9(b)), remaining correction tables (6.14-6.19), full earthing/disconnection studies, manufacturer coordination curves, DC protection and full edition-specific compliance rules.
 
 The reference is the uploaded 2017 Edition 2, not necessarily the edition applicable to a new installation. Scope validation does not establish electrical compliance.

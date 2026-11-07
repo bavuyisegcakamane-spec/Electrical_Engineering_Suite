@@ -24,6 +24,7 @@ TOOLS = {
         ("SANS 10142-1 Partial Installation Checks", "open_sans_screening"),
         ("SANS Buried Cable Table Subset", "open_sans_cable_tables"),
         ("SANS Cable Factors / Protection Review", "open_sans_extended"),
+        ("SANS Evidence and Inspection Register", "open_sans_verification"),
         ("Electrical Fault-Finding Assistant", "open_fault_diagnosis")],
     "Projects and reporting": [
         ("Project Workspace", "open_workspace"),
