@@ -27,6 +27,7 @@ from app.load_dialog import LoadDialog
 from app.motor_dialog import MotorDialog
 from app.cable_dialog import CableDialog
 from app.protection_dialog import ProtectionDialog
+from app.power_factor_dialog import PowerFactorDialog
 
 
 class MainWindow(QMainWindow):
@@ -82,6 +83,7 @@ class MainWindow(QMainWindow):
         motor_button = QPushButton("Motor Analysis")
         cable_button = QPushButton("Cable Voltage Drop")
         protection_button = QPushButton("Protection / Fault Current")
+        pf_button = QPushButton("Power Factor Correction")
 
         database_button = QPushButton(
             "Database"
@@ -102,6 +104,7 @@ class MainWindow(QMainWindow):
         motor_button.clicked.connect(self.open_motors)
         cable_button.clicked.connect(self.open_cables)
         protection_button.clicked.connect(self.open_protection)
+        pf_button.clicked.connect(self.open_power_factor)
         database_button.clicked.connect(self.open_database)
         settings_button.clicked.connect(self.open_settings)
         exit_button.clicked.connect(self.close)
@@ -121,6 +124,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(motor_button)
         layout.addWidget(cable_button)
         layout.addWidget(protection_button)
+        layout.addWidget(pf_button)
 
         layout.addWidget(
             database_button
@@ -176,6 +180,11 @@ class MainWindow(QMainWindow):
     def open_protection(self):
         """Open educational fault-current estimator."""
         dialog = ProtectionDialog(self)
+        dialog.exec()
+
+    def open_power_factor(self):
+        """Open educational power factor correction estimator."""
+        dialog = PowerFactorDialog(self)
         dialog.exec()
 
     def open_database(self):
