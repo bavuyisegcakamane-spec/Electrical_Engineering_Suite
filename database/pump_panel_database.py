@@ -138,6 +138,22 @@ class PumpPanelDatabase:
         return [dict(zip(('motor_position','component','quantity','requirement',
                           'selected_catalog_id','verification_status','sizing_notes'),row)) for row in rows]
 
+    def list_panels(self):
+        rows = self.db.execute('''SELECT d.id,d.title,d.voltage_v,d.main_breaker_a,
+            d.status,COUNT(m.id) FROM pump_panel_designs d
+            LEFT JOIN pump_panel_motors m ON m.panel_id=d.id
+            GROUP BY d.id ORDER BY d.id DESC''').fetchall()
+        return [dict(zip(('id','title','voltage_v','main_breaker_a','status','pump_count'),row))
+                for row in rows]
+
+    def list_component_types(self, query=''):
+        if not isinstance(query,str) or len(query)>200:
+            raise ValueError('Search must be text up to 200 characters')
+        pattern='%' + query.replace('\\','\\\\').replace('%','\\%').replace('_','\\_') + '%'
+        rows=self.db.execute('''SELECT id,name,scope,description FROM pump_component_types
+            WHERE name LIKE ? ESCAPE '\\' ORDER BY scope,name''',(pattern,)).fetchall()
+        return [dict(zip(('id','name','scope','description'),row)) for row in rows]
+
     def assign_catalog_model(self, bom_id, catalog_id, sizing_notes=''):
         if not isinstance(sizing_notes,str) or len(sizing_notes)>5000:
             raise ValueError('Sizing notes must be text under 5000 characters')
