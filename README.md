@@ -548,7 +548,8 @@ Checked items represent implemented functionality, not engineering certification
 - [x] Additional verified Table 6.10 PVC ambient, Table 6.12 soil resistivity and Table 6.13 selected grouping factors; interactive partial buried-cable factors and earthing/protection review.
 - [x] Preliminary device rating, breaking capacity, RCD rating and user-provided AC fault-loop/trip-time comparison, without automatic compliance certification.
 - [x] Evidence and inspection register: traceable 17-item review checklist, unresolved issues and JSON export/import, with no compliance certificate or automatic signoff.
-- [ ] Complete cable tables (6.2(a)-6.9(b)), remaining correction tables (6.14-6.19), full earthing/disconnection studies, manufacturer coordination curves, DC protection and full edition-specific compliance rules.
+- [x] Preliminary manufacturer device-curve envelope comparison from user-supplied CSV (log-log interpolation within the documented range only), with no automatic compliance verdict.
+- [ ] Complete cable tables (6.2(a)-6.9(b)), remaining correction tables (6.14-6.19), full earthing/disconnection studies, full manufacturer coordination validation, DC protection and full edition-specific compliance rules.
 
 The reference is the uploaded 2017 Edition 2, not necessarily the edition applicable to a new installation. Scope validation does not establish electrical compliance.
 

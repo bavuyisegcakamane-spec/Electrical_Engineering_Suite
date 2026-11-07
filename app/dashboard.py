@@ -25,6 +25,7 @@ TOOLS = {
         ("SANS Buried Cable Table Subset", "open_sans_cable_tables"),
         ("SANS Cable Factors / Protection Review", "open_sans_extended"),
         ("SANS Evidence and Inspection Register", "open_sans_verification"),
+        ("Manufacturer Device Curve Comparison", "open_device_coordination"),
         ("Electrical Fault-Finding Assistant", "open_fault_diagnosis")],
     "Projects and reporting": [
         ("Project Workspace", "open_workspace"),

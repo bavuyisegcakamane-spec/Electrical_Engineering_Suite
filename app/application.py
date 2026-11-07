@@ -40,6 +40,7 @@ from app.sans_screening_dialog import SANSScreeningDialog
 from app.sans_cable_tables_dialog import SANSCableTablesDialog
 from app.sans_extended_dialog import SANSExtendedDialog
 from app.sans_verification_dialog import SANSVerificationDialog
+from app.device_coordination_dialog import DeviceCoordinationDialog
 from app.field_records_dialog import FieldRecordsDialog
 
 
@@ -108,6 +109,10 @@ class MainWindow(QMainWindow):
 
     def open_advanced_equipment(self):
         dialog = AdvancedEquipmentDialog(self)
+        dialog.exec()
+
+    def open_device_coordination(self):
+        dialog = DeviceCoordinationDialog(self)
         dialog.exec()
 
     def open_sans_verification(self):
