@@ -723,3 +723,7 @@ Each module should:
 7. Be documented before moving to the next major module.
 
 The application should prioritize **accuracy, usability, maintainability, and safety** over simply adding features.
+
+### raw.bytes source attribution guard
+
+The first-party Python files carry a raw.bytes terminal-style attribution comment. Run `python tools/branding_guard.py --fix` after creating new Python files, then `python tools/branding_guard.py --check` before committing. GitHub Actions checks the marker on pushes and pull requests. Enable branch protection for `main` and require the `attribution` status check to block unbranded changes. These markings do not replace license rights and do not apply to third-party code or standards.
