@@ -555,13 +555,15 @@ Checked items represent implemented functionality, not engineering certification
 - [x] Additional AC power, series RLC impedance and insulation-resistance estimators
 - [ ] Complete Engineering Toolbox (remaining utilities)
 - [x] Ideal single-phase Transformer Calculator (turns ratio, voltage and rated currents)
-- [ ] Advanced transformer losses, regulation and protection
+- [x] Approximate transformer efficiency, copper/core losses and full-load regulation
+- [ ] Detailed transformer equivalent circuit and protection
 - [ ] General calculation history
 
 ## Phase 3 - Electrical System Design
 - [x] Electrical Load Calculator (balanced AC estimates)
 - [x] Three-phase Motor Analysis (steady-state)
-- [ ] Motor selection and starting analysis
+- [x] Preliminary induction-motor starting current and slip estimator
+- [ ] Motor selection, thermal modeling and protection coordination
 - [x] Cable resistive voltage-drop estimator (educational)
 - [ ] Code-compliant cable sizing and ampacity assessment
 - [x] Simplified prospective fault-current estimator

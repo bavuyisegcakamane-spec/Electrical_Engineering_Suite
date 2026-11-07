@@ -15,6 +15,7 @@ TOOLS = {
         ("Electrical Load Calculator", "open_loads"),
         ("Motor Analysis", "open_motors"),
         ("Transformer Calculator", "open_transformers"),
+        ("Advanced Motor / Transformer Estimates", "open_advanced_equipment"),
         ("Power Factor Correction", "open_power_factor")],
     "Cables and protection": [
         ("Cable Voltage Drop", "open_cables"),

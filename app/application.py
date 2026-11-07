@@ -34,6 +34,7 @@ from app.dashboard import Dashboard
 from app.transformer_dialog import TransformerDialog
 from app.ac_engineering_dialog import ACEngineeringDialog
 from app.fault_diagnosis_dialog import FaultDiagnosisDialog
+from app.advanced_equipment_dialog import AdvancedEquipmentDialog
 
 
 class MainWindow(QMainWindow):
@@ -97,6 +98,10 @@ class MainWindow(QMainWindow):
 
     def open_fault_diagnosis(self):
         dialog = FaultDiagnosisDialog(self)
+        dialog.exec()
+
+    def open_advanced_equipment(self):
+        dialog = AdvancedEquipmentDialog(self)
         dialog.exec()
 
     def open_cables(self):
