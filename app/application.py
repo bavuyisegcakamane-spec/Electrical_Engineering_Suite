@@ -21,6 +21,7 @@ from app.settings import (
 
 from database.database import Database
 from app.calculator_dialog import CalculatorDialog
+from app.circuit_dialog import CircuitDialog
 
 
 class MainWindow(QMainWindow):
@@ -70,6 +71,8 @@ class MainWindow(QMainWindow):
             "Engineering Calculations"
         )
 
+        circuit_button = QPushButton("Circuit Analyzer")
+
         database_button = QPushButton(
             "Database"
         )
@@ -83,6 +86,7 @@ class MainWindow(QMainWindow):
         )
 
         calculations_button.clicked.connect(self.open_calculations)
+        circuit_button.clicked.connect(self.open_circuits)
         database_button.clicked.connect(self.open_database)
         settings_button.clicked.connect(self.open_settings)
         exit_button.clicked.connect(self.close)
@@ -96,6 +100,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(
             calculations_button
         )
+        layout.addWidget(circuit_button)
 
         layout.addWidget(
             database_button
@@ -121,6 +126,11 @@ class MainWindow(QMainWindow):
         """Open the engineering calculations view."""
 
         dialog = CalculatorDialog(self)
+        dialog.exec()
+
+    def open_circuits(self):
+        """Open the resistor circuit analyzer."""
+        dialog = CircuitDialog(self)
         dialog.exec()
 
     def open_database(self):
