@@ -13,6 +13,7 @@ from database.equipment_import import import_equipment_csv
 from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QPushButton,
                                QTableWidget,QTableWidgetItem,QMessageBox,QFormLayout,QComboBox,QFileDialog)
 from database.equipment_catalog import EquipmentCatalog
+from database.manufacturer_products import seed_manufacturer_products
 from database.component_taxonomy import COMPONENT_GROUPS, ALL_COMPONENT_TYPES
 from app.branding import BRAND_SIGNATURE
 
@@ -48,6 +49,9 @@ class EquipmentCatalogDialog(QDialog):
         seed = QPushButton('Import official source families')
         seed.clicked.connect(self.seed)
         actions.addWidget(seed)
+        products_button = QPushButton('Import reviewed manufacturer models')
+        products_button.clicked.connect(self.seed_products)
+        actions.addWidget(products_button)
         import_button = QPushButton('Import reviewed manufacturer CSV')
         import_button.clicked.connect(self.import_csv)
         actions.addWidget(import_button)
@@ -96,6 +100,12 @@ class EquipmentCatalogDialog(QDialog):
             return
         self.refresh()
         QMessageBox.information(self, 'Import finished', f'Processed {count} source-referenced rows. Manufacturer ratings are not independently verified.')
+
+    def seed_products(self):
+        count = seed_manufacturer_products(self.catalog)
+        self.refresh()
+        QMessageBox.information(self, 'Manufacturer references',
+                                f'Processed {count} model references. Recheck datasheets and regional product status before design.')
 
     def seed(self):
         self.catalog.seed_official_sources()
