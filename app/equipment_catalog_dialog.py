@@ -8,8 +8,10 @@
 
 """Local, source-traceable electrical equipment catalogue UI."""
 import webbrowser
+from pathlib import Path
+from database.equipment_import import import_equipment_csv
 from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QPushButton,
-                               QTableWidget,QTableWidgetItem,QMessageBox,QFormLayout,QComboBox)
+                               QTableWidget,QTableWidgetItem,QMessageBox,QFormLayout,QComboBox,QFileDialog)
 from database.equipment_catalog import EquipmentCatalog
 from app.branding import BRAND_SIGNATURE
 
@@ -34,6 +36,9 @@ class EquipmentCatalogDialog(QDialog):
         seed = QPushButton('Import official source families')
         seed.clicked.connect(self.seed)
         actions.addWidget(seed)
+        import_button = QPushButton('Import reviewed manufacturer CSV')
+        import_button.clicked.connect(self.import_csv)
+        actions.addWidget(import_button)
         layout.addLayout(actions)
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(('Manufacturer','Family / Model','Category','Description','Source URL'))
@@ -58,6 +63,18 @@ class EquipmentCatalogDialog(QDialog):
         add_button.clicked.connect(self.add_record)
         layout.addWidget(add_button)
         self.refresh()
+
+    def import_csv(self):
+        filename, _ = QFileDialog.getOpenFileName(self, 'Choose reviewed equipment CSV', '', 'CSV files (*.csv)')
+        if not filename:
+            return
+        try:
+            count = import_equipment_csv(self.catalog, Path(filename).read_text(encoding='utf-8-sig'))
+        except (ValueError, OSError) as exc:
+            QMessageBox.warning(self, 'Import rejected', str(exc))
+            return
+        self.refresh()
+        QMessageBox.information(self, 'Import finished', f'Processed {count} source-referenced rows. Manufacturer ratings are not independently verified.')
 
     def seed(self):
         self.catalog.seed_official_sources()
