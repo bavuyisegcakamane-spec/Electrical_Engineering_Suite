@@ -743,3 +743,7 @@ The Electrical Equipment Catalogue now includes 94 component types in seven grou
 ### Reviewed manufacturer model starter records
 
 The catalogue includes an optional import button for five exact Schneider Electric model references checked against manufacturer product pages on 2026-11-07: A9F74116 (MCB, discontinued in UAE), A9R11225 (RCCB, discontinued in Indonesia), LC1D09P7 (contactor), LRD08 (thermal overload relay), RXM2AB2P7 (plug-in control relay). Records contain model-specific fields and source links. Commercial status is regional and may change; never assume suitability, availability or compliance without checking the current manufacturer datasheet and applicable standards. Importing is idempotent.
+
+### Preliminary water pump panel study
+
+Open Electrical Equipment Catalogue and select Water pump panel study. Supports 1-4 three-phase motors rated 2.2-45 kW with DOL, star-delta, soft-starter and VFD starting-method labels. Estimates running current from user-assumed voltage, efficiency and power factor, and compares worst-case simultaneous running load against a configurable 150 A default main breaker. Outputs a conceptual BOM for common panel items and each motor branch. This is NOT an equipment-selection, motor starting, short-circuit, cable-sizing, coordination or SANS compliance calculation. Consult motor nameplate and OEM data, verify local conditions and have a qualified designer validate the complete panel.
