@@ -540,6 +540,13 @@ ElectricalEngineeringSuite/
 
 Checked items represent implemented functionality, not engineering certification. Partial modules are identified explicitly.
 
+## SANS 10142-1 voltage scope
+- [x] SANS 10142-1:2017 Edition 2, clause 1.2(a): installation screening voltage scope up to and including **1000 V AC** and **1500 V DC**.
+- [x] AC/DC voltage validation in cable screening; earth-fault loop screening remains AC-only.
+- [ ] Edition-specific full compliance rules, DC protection studies and validated cable-selection tables.
+
+The reference is the uploaded 2017 Edition 2, not necessarily the edition applicable to a new installation. Scope validation does not establish electrical compliance.
+
 ## Phase 1 - Foundation
 - [x] Create project structure and Python entry point
 - [x] Create PySide6 main interface

@@ -1,6 +1,6 @@
 """Installation screening tools with explicit user-supplied assumptions."""
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QComboBox, QFormLayout, QLineEdit, QLabel, QPushButton, QMessageBox
-from calculations.installation_assessment import cable_screening, earth_fault_loop_screening
+from calculations.installation_assessment import cable_screening, earth_fault_loop_screening, validate_installation_voltage
 
 CONFIG = {
     "Cable ampacity / voltage-drop screening": (
@@ -22,6 +22,11 @@ class InstallationDialog(QDialog):
         self.selector.addItems(CONFIG)
         self.selector.currentTextChanged.connect(self.configure)
         layout.addWidget(self.selector)
+        self.supply_type = QComboBox()
+        self.supply_type.addItems(('AC', 'DC'))
+        layout.addWidget(QLabel('Supply type (cable screening only; earth-fault loop is AC only)'))
+        layout.addWidget(self.supply_type)
+        layout.addWidget(QLabel('SANS 10142-1:2017 Ed 2 scope: up to 1000 V AC / 1500 V DC'))
         self.form = QFormLayout()
         layout.addLayout(self.form)
         self.fields = []
@@ -47,7 +52,13 @@ class InstallationDialog(QDialog):
     def calculate(self):
         try:
             _, _, function = CONFIG[self.selector.currentText()]
-            result = function(*(float(field.text()) for field in self.fields))
+            values = [float(field.text()) for field in self.fields]
+            if function is cable_screening:
+                result = function(*values, supply_type=self.supply_type.currentText())
+            else:
+                if self.supply_type.currentText() != 'AC':
+                    raise ValueError('Earth-fault loop screening currently supports AC only')
+                result = function(*values)
         except (ValueError, OverflowError, ZeroDivisionError) as exc:
             QMessageBox.warning(self, "Invalid inputs", str(exc))
             return
