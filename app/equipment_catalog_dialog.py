@@ -90,7 +90,7 @@ class EquipmentCatalogDialog(QDialog):
         self.refresh()
 
     def open_pump_panel(self):
-        dialog = PumpPanelDialog(self)
+        dialog = PumpPanelDialog(self, self.catalog.db)
         dialog.exec()
 
     def update_component_types(self, *_):

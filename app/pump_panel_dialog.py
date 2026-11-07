@@ -11,12 +11,14 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QFormLayout, QComboBox,
     QDoubleSpinBox, QSpinBox, QPushButton, QPlainTextEdit, QLabel, QHBoxLayout)
 from calculations.pump_panel import Pump, PUMP_KW, STARTERS, study_panel
 from database.pump_panel_components import conceptual_bom
+from database.pump_panel_database import PumpPanelDatabase
 from app.branding import BRAND_SIGNATURE
 
 
 class PumpPanelDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, database=None):
         super().__init__(parent)
+        self.panel_repository = PumpPanelDatabase(database) if database is not None else None
         self.setWindowTitle('raw.bytes | Water Pump Panel Study (Preliminary)')
         self.resize(850, 720)
         layout = QVBoxLayout(self)
@@ -48,6 +50,10 @@ class PumpPanelDialog(QDialog):
         calculate = QPushButton('Calculate preliminary panel running load')
         calculate.clicked.connect(self.calculate)
         layout.addWidget(calculate)
+        if self.panel_repository is not None:
+            save_button = QPushButton('Save draft panel and complete component checklist to database')
+            save_button.clicked.connect(self.save_draft)
+            layout.addWidget(save_button)
         self.output = QPlainTextEdit(); self.output.setReadOnly(True)
         layout.addWidget(self.output)
         self.calculate()
@@ -58,6 +64,13 @@ class PumpPanelDialog(QDialog):
         for index, row in enumerate(self.motor_rows):
             for widget in row:
                 widget.setVisible(index < n)
+
+    def save_draft(self):
+        pumps = [Pump(float(kw.currentText()), starter.currentText(), f'Pump {i+1}')
+                 for i, (_, kw, starter) in enumerate(self.motor_rows[:self.count.value()])]
+        panel_id = self.panel_repository.create_panel('Pump panel draft', pumps,
+                         self.voltage.value(), self.breaker.value())
+        self.output.appendPlainText(f'\nSaved draft panel #{panel_id} with {len(self.panel_repository.get_bom(panel_id))} checklist rows. All selections remain unverified.')
 
     def calculate(self):
         pumps = [Pump(float(kw.currentText()), starter.currentText(), f'Pump {i+1}')
