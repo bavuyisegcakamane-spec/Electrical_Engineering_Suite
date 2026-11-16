@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QLineEdit, QLab
 from calculations.cables import estimate_voltage_drop
 from calculations.cable_sizing import derated_ampacity
 from database.cable_reference_database import CableReferenceRepository
+from app.cable_reference_entry_dialog import CableReferenceEntryDialog
 
 
 class CableDialog(QDialog):
@@ -59,9 +60,23 @@ class CableDialog(QDialog):
             source_form.addRow('Grouping factor (sourced)', self.grouping_factor)
             source_form.addRow('Breaker nominal current (A)', self.breaker_rating)
             layout.addLayout(source_form)
+            add = QPushButton('Add sourced cable reference')
+            add.clicked.connect(self.add_reference)
+            layout.addWidget(add)
             check = QPushButton('Check stored cable reference (preliminary)')
             check.clicked.connect(self.check_reference)
             layout.addWidget(check)
+
+    def add_reference(self):
+        if self.reference_repo is None:
+            return
+        dialog = CableReferenceEntryDialog(self.reference_repo, self)
+        if dialog.exec() == QDialog.Accepted:
+            self.reference.clear()
+            self.reference.addItem('Select a user-entered source reference', None)
+            for row in self.reference_repo.list_ratings():
+                self.reference.addItem(f'{row["area_mm2"]:g} mm2 | {row["reference_ampacity_a"]:g} A | {row["source_title"]} | UNVERIFIED', row['id'])
+            self.reference.setCurrentIndex(self.reference.count() - 1)
 
     def check_reference(self):
         if self.reference_repo is None or self.reference.currentData() is None:
