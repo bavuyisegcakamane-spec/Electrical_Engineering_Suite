@@ -6,16 +6,19 @@
 #              . bytes  |  raw.bytes  |  (c) 2026
 # Developer signature: raw.bytes. Third-party rights remain with their owners.
 
-"""Rated operating estimates for balanced three-phase AC motors."""
+"""Rated operating estimates for single-phase and balanced three-phase AC motors."""
 import math
 
 
-def analyze_motor(output_kw, voltage, efficiency, power_factor, speed_rpm):
+def analyze_motor(output_kw, voltage, efficiency, power_factor, speed_rpm, phases=3):
     """Estimate rated input power, line current, apparent/reactive power and torque.
 
     Efficiency and power factor are decimal fractions, not percentages.
+    phases=1 uses supply voltage; phases=3 uses line-to-line voltage.
     Uses nominal steady-state conditions; not starting current or protection sizing.
     """
+    if isinstance(phases, bool) or not isinstance(phases, int) or phases not in (1, 3):
+        raise ValueError('Motor phases must be 1 or 3.')
     values = (output_kw, voltage, efficiency, power_factor, speed_rpm)
     if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in values):
         raise ValueError("All inputs must be finite numbers.")
@@ -25,7 +28,7 @@ def analyze_motor(output_kw, voltage, efficiency, power_factor, speed_rpm):
         raise ValueError("Efficiency and power factor must be greater than 0 and at most 1.")
     input_kw = output_kw / efficiency
     apparent_kva = input_kw / power_factor
-    line_current = apparent_kva * 1000 / (math.sqrt(3) * voltage)
+    line_current = apparent_kva * 1000 / ((math.sqrt(3) if phases == 3 else 1) * voltage)
     reactive_kvar = apparent_kva * math.sqrt(max(0.0, 1 - power_factor ** 2))
     torque_nm = output_kw * 1000 * 60 / (2 * math.pi * speed_rpm)
     if not all(math.isfinite(v) for v in (input_kw, apparent_kva, line_current, reactive_kvar, torque_nm)):
