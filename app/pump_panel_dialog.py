@@ -23,11 +23,14 @@ class PumpPanelDialog(QDialog):
         self.resize(850, 720)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(BRAND_SIGNATURE))
-        layout.addWidget(QLabel('1-4 three-phase motors | 2.2-45 kW | DOL / Star-delta / Soft starter / VFD'))
+        layout.addWidget(QLabel('1-4 motors | 2.2-45 kW | single-phase DOL only; three-phase supports all starter types'))
         form = QFormLayout()
         self.count = QSpinBox(); self.count.setRange(1, 4); self.count.setValue(2)
         self.simultaneous = QSpinBox(); self.simultaneous.setRange(1, 4); self.simultaneous.setValue(2)
         self.count.valueChanged.connect(self._update_count)
+        self.phases = QComboBox(); self.phases.addItem('Three-phase', 3); self.phases.addItem('Single-phase', 1)
+        self.phases.currentIndexChanged.connect(self._update_phase)
+        form.addRow('Supply phases', self.phases)
         self.voltage = QDoubleSpinBox(); self.voltage.setRange(200, 690); self.voltage.setValue(400); self.voltage.setSuffix(' V')
         self.pf = QDoubleSpinBox(); self.pf.setRange(0.01, 1); self.pf.setDecimals(2); self.pf.setValue(0.85)
         self.efficiency = QDoubleSpinBox(); self.efficiency.setRange(0.01, 1); self.efficiency.setDecimals(2); self.efficiency.setValue(0.90)
@@ -47,6 +50,7 @@ class PumpPanelDialog(QDialog):
             layout.addLayout(line)
             self.motor_rows.append((label, kw, starter))
         self._update_count()
+        self._update_phase()
         calculate = QPushButton('Calculate preliminary panel running load')
         calculate.clicked.connect(self.calculate)
         layout.addWidget(calculate)
@@ -65,11 +69,19 @@ class PumpPanelDialog(QDialog):
             for widget in row:
                 widget.setVisible(index < n)
 
+    def _update_phase(self, *_):
+        single = self.phases.currentData() == 1
+        for _, _, starter in self.motor_rows:
+            if single:
+                starter.setCurrentText('DOL')
+            for i in range(starter.count()):
+                starter.model().item(i).setEnabled(not single or starter.itemText(i) == 'DOL')
+
     def save_draft(self):
         pumps = [Pump(float(kw.currentText()), starter.currentText(), f'Pump {i+1}')
                  for i, (_, kw, starter) in enumerate(self.motor_rows[:self.count.value()])]
         panel_id = self.panel_repository.create_panel('Pump panel draft', pumps,
-                         self.voltage.value(), self.breaker.value())
+                         self.voltage.value(), self.breaker.value(), phases=self.phases.currentData())
         self.output.appendPlainText(f'\nSaved draft panel #{panel_id} with {len(self.panel_repository.get_bom(panel_id))} checklist rows. All selections remain unverified.')
 
     def calculate(self):
@@ -77,15 +89,20 @@ class PumpPanelDialog(QDialog):
                  for i, (_, kw, starter) in enumerate(self.motor_rows[:self.count.value()])]
         result = study_panel(pumps, self.voltage.value(), self.pf.value(),
                              self.efficiency.value(), self.breaker.value(),
-                             self.simultaneous.value())
-        lines = [f'{p["name"]}: {p["power_kw"]} kW | {p["starter"]} | estimated FLC {p["estimated_running_a"]:.2f} A'
-                 for p in result['pumps']]
+                             self.simultaneous.value(), phases=self.phases.currentData())
+        lines = [f'Supply: {result["phases"]}-phase | {result["voltage_v"]:.0f} V']
+        lines += [f'{p["name"]}: {p["power_kw"]} kW | {p["starter"]} | estimated FLC {p["estimated_running_a"]:.2f} A'
+                  for p in result['pumps']]
         lines += ['', f'Installed motor running load: {result["installed_running_a"]:.2f} A',
                   f'Worst-case {result["simultaneous"]} simultaneous running: {result["simultaneous_running_a"]:.2f} A',
                   f'Main breaker: {result["main_breaker_a"]:.0f} A | running utilization {result["estimated_utilization_percent"]:.1f}%',
                   'RUNNING LOAD EXCEEDS MAIN RATING' if result['exceeds_main_rating'] else 'Running-load estimate below main rating (not a design approval)',
                   '', 'DESIGN WARNINGS:'] + [f'- {w}' for w in result['warnings']]
-        bom = conceptual_bom([p.starter for p in pumps])
+        bom = conceptual_bom([p.starter for p in pumps]) if result['phases'] == 3 else None
+        if bom is None:
+            lines += ['', 'Single-phase BOM requires dedicated engineering review; no three-phase checklist generated.']
+            self.output.setPlainText('\n'.join(lines))
+            return
         lines += ['', 'CONCEPTUAL PANEL COMPONENT CHECKLIST (not sized):']
         lines += [f'- {item}' for item in bom['common']]
         for branch in bom['per_pump']:

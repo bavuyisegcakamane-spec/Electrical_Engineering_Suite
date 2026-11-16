@@ -92,6 +92,10 @@ class PumpPanelDatabase:
             CREATE INDEX IF NOT EXISTS idx_pump_bom_panel ON pump_panel_bom(panel_id);
             CREATE INDEX IF NOT EXISTS idx_pump_motors_panel ON pump_panel_motors(panel_id);
         ''')
+        columns = {row[1] for row in self.db.execute('PRAGMA table_info(pump_panel_designs)')}
+        if 'phases' not in columns:
+            with self.db:
+                self.db.execute('ALTER TABLE pump_panel_designs ADD COLUMN phases INTEGER NOT NULL DEFAULT 3 CHECK(phases IN (1,3))')
         self._seed_types()
 
     def _seed_types(self):
@@ -109,26 +113,28 @@ class PumpPanelDatabase:
                         VALUES (?,?,?)''', (name,'common',
                         f'{group} | Generic <=450 V panel material; applicability and ratings require design review'))
 
-    def create_panel(self, title, pumps, voltage_v=400, main_breaker_a=150):
+    def create_panel(self, title, pumps, voltage_v=400, main_breaker_a=150, phases=3):
         from calculations.pump_panel import study_panel
-        study_panel(pumps, voltage_v=voltage_v, main_breaker_a=main_breaker_a)
+        study_panel(pumps, voltage_v=voltage_v, main_breaker_a=main_breaker_a, phases=phases)
         if not isinstance(title,str) or not title.strip() or len(title)>200:
             raise ValueError('Panel title is required (max 200 characters)')
         with self.db:
-            cur = self.db.execute('INSERT INTO pump_panel_designs(title,voltage_v,main_breaker_a,created_utc) VALUES (?,?,?,?)',
-                                  (title.strip(),voltage_v,main_breaker_a,utc_now()))
+            cur = self.db.execute('INSERT INTO pump_panel_designs(title,voltage_v,main_breaker_a,created_utc,phases) VALUES (?,?,?,?,?)',
+                                  (title.strip(),voltage_v,main_breaker_a,utc_now(),phases))
             panel_id = cur.lastrowid
             common = {name:'review' for name in COMMON}
             common.update(EXTRA_COMMON)
-            for name,status in common.items():
-                self._add_bom(panel_id,None,name,status)
+            if phases == 3:
+                for name,status in common.items():
+                    self._add_bom(panel_id,None,name,status)
             for index,pump in enumerate(pumps,1):
                 self.db.execute('INSERT INTO pump_panel_motors(panel_id,position,power_kw,starter) VALUES (?,?,?,?)',
                                 (panel_id,index,pump.power_kw,pump.starter))
-                branch = {name:'review' for name in BY_STARTER[pump.starter]}
-                branch.update(STARTER_EXTRA[pump.starter])
-                for name,status in branch.items():
-                    self._add_bom(panel_id,index,name,status)
+                if phases == 3:
+                    branch = {name:'review' for name in BY_STARTER[pump.starter]}
+                    branch.update(STARTER_EXTRA[pump.starter])
+                    for name,status in branch.items():
+                        self._add_bom(panel_id,index,name,status)
         return panel_id
 
     def _add_bom(self, panel_id,position,name,status):
@@ -146,10 +152,10 @@ class PumpPanelDatabase:
 
     def list_panels(self):
         rows = self.db.execute('''SELECT d.id,d.title,d.voltage_v,d.main_breaker_a,
-            d.status,COUNT(m.id) FROM pump_panel_designs d
+            d.status,COUNT(m.id),d.phases FROM pump_panel_designs d
             LEFT JOIN pump_panel_motors m ON m.panel_id=d.id
             GROUP BY d.id ORDER BY d.id DESC''').fetchall()
-        return [dict(zip(('id','title','voltage_v','main_breaker_a','status','pump_count'),row))
+        return [dict(zip(('id','title','voltage_v','main_breaker_a','status','pump_count','phases'),row))
                 for row in rows]
 
     def list_component_types(self, query=''):

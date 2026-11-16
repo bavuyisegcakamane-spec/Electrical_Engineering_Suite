@@ -130,6 +130,10 @@ class PumpComponentsDialog(QDialog):
         voltage.setValue(400)
         voltage.setSuffix(' V')
         form.addRow('Supply voltage', voltage)
+        phases = QComboBox()
+        phases.addItem('Three-phase', 3)
+        phases.addItem('Single-phase', 1)
+        form.addRow('Supply phases', phases)
         breaker = QDoubleSpinBox()
         breaker.setRange(1, 10000)
         breaker.setValue(150)
@@ -153,7 +157,16 @@ class PumpComponentsDialog(QDialog):
                 power.setEnabled(i < count.value())
                 starter.setEnabled(i < count.value())
         count.valueChanged.connect(update_count)
+        def update_phases(*_):
+            single = phases.currentData() == 1
+            for _, starter in pump_rows:
+                if single:
+                    starter.setCurrentText('DOL')
+                for i in range(starter.count()):
+                    starter.model().item(i).setEnabled(not single or starter.itemText(i) == 'DOL')
+        phases.currentIndexChanged.connect(update_phases)
         update_count()
+        update_phases()
         form.addRow(QLabel('Draft only: confirm nameplate currents, protection and coordination before construction.'))
         buttons = QHBoxLayout()
         save = QPushButton('Create saved panel')
@@ -167,7 +180,7 @@ class PumpComponentsDialog(QDialog):
                      for power, starter in pump_rows[:count.value()]]
             try:
                 panel_id = self.repo.create_panel(title.text(), pumps,
-                    voltage_v=voltage.value(), main_breaker_a=breaker.value())
+                    voltage_v=voltage.value(), main_breaker_a=breaker.value(), phases=phases.currentData())
             except (ValueError, TypeError) as exc:
                 QMessageBox.warning(dialog, 'Cannot create panel', str(exc))
                 return
@@ -305,7 +318,7 @@ class PumpComponentsDialog(QDialog):
         self.panel.blockSignals(True)
         self.panel.clear()
         for row in self.repo.list_panels():
-            self.panel.addItem(f'#{row["id"]} {row["title"]} | {row["pump_count"]} pumps | {row["main_breaker_a"]:g} A',row['id'])
+            self.panel.addItem(f'#{row["id"]} {row["title"]} | {row["phases"]}-phase | {row["pump_count"]} pumps | {row["main_breaker_a"]:g} A',row['id'])
         self.panel.blockSignals(False)
         self.refresh_bom()
 

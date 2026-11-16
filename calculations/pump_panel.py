@@ -6,7 +6,7 @@
 #              . bytes  |  raw.bytes  |  (c) 2026
 # Developer signature: raw.bytes. Third-party rights remain with their owners.
 
-"""Preliminary three-phase pump panel load study; NOT protection or cable design."""
+"""Preliminary single/three-phase pump panel study; NOT protection or cable design."""
 from dataclasses import dataclass
 from math import sqrt, isfinite
 
@@ -26,12 +26,14 @@ def _positive(value, label):
 
 
 def study_panel(pumps, voltage_v=400, power_factor=0.85, efficiency=0.90,
-                main_breaker_a=150, simultaneous=None):
+                main_breaker_a=150, simultaneous=None, phases=3):
     """Calculate input FLC estimates and simultaneous running load.
 
     Uses a single user-supplied PF/efficiency for all motors. Starter selection
     does NOT change running motor current. No starting-current estimate is made.
     """
+    if isinstance(phases, bool) or not isinstance(phases, int) or phases not in (1, 3):
+        raise ValueError('Supply phases must be 1 or 3')
     pumps = tuple(pumps)
     if not 1 <= len(pumps) <= 4:
         raise ValueError('Provide 1 to 4 pumps')
@@ -44,32 +46,37 @@ def study_panel(pumps, voltage_v=400, power_factor=0.85, efficiency=0.90,
         simultaneous = len(pumps)
     if isinstance(simultaneous, bool) or not isinstance(simultaneous, int) or not 1 <= simultaneous <= len(pumps):
         raise ValueError('Simultaneous pump count must be between 1 and installed pump count')
+    divisor = sqrt(3) if phases == 3 else 1
     records = []
     for pump in pumps:
         if not isinstance(pump, Pump) or pump.starter not in STARTERS:
             raise ValueError('Invalid pump or starting method')
+        if phases == 1 and pump.starter != 'DOL':
+            raise ValueError('Single-phase panel supports DOL only; verify actual motor starter requirements')
         _positive(pump.power_kw, 'motor power')
         if not 2.2 <= pump.power_kw <= 45:
             raise ValueError('Motor power must be between 2.2 and 45 kW')
-        current = pump.power_kw * 1000 / (sqrt(3) * voltage_v * power_factor * efficiency)
+        current = pump.power_kw * 1000 / (divisor * voltage_v * power_factor * efficiency)
         records.append({'name':pump.name, 'power_kw':pump.power_kw,
                         'starter':pump.starter, 'estimated_running_a':round(current, 2)})
     # Conservative worst-case simultaneous subset: largest running currents.
     # Sort and aggregate using full-precision current, never the rounded display value.
     # At a fixed voltage/PF/efficiency, current is proportional to motor kW.
     selected = sorted(records, key=lambda row: row['power_kw'], reverse=True)[:simultaneous]
-    running_a = sum(pump['power_kw'] * 1000 / (sqrt(3) * voltage_v * power_factor * efficiency)
+    running_a = sum(pump['power_kw'] * 1000 / (divisor * voltage_v * power_factor * efficiency)
                     for pump in selected)
-    installed_a = sum(pump['power_kw'] * 1000 / (sqrt(3) * voltage_v * power_factor * efficiency)
+    installed_a = sum(pump['power_kw'] * 1000 / (divisor * voltage_v * power_factor * efficiency)
                       for pump in records)
     warnings = ['PRELIMINARY ONLY: use motor nameplate FLA, manufacturer starter data, site fault level and qualified electrical design before equipment selection.',
                 'Starting/inrush current, breaker trip curves, protection coordination, cable derating, voltage drop and thermal limits are NOT assessed.',
                 'Star-delta requires a suitable six-terminal motor and correct delta run voltage; VFD and soft-starter sizing require manufacturer data.']
+    if phases == 1:
+        warnings.append('Single-phase starter and motor capacitor arrangements require manufacturer verification; three-phase component checklist is not applicable.')
     if running_a > main_breaker_a:
         warnings.append('Estimated simultaneous running current EXCEEDS the main breaker rating; this arrangement is not suitable as entered.')
     else:
         warnings.append('Estimated running current is below the main breaker rating; this does NOT establish breaker suitability or safe operation.')
-    return {'pumps':records, 'voltage_v':voltage_v, 'power_factor':power_factor,
+    return {'pumps':records, 'voltage_v':voltage_v, 'phases':phases, 'power_factor':power_factor,
             'efficiency':efficiency, 'simultaneous':simultaneous,
             'installed_running_a':round(installed_a, 2),
             'simultaneous_running_a':round(running_a, 2),
