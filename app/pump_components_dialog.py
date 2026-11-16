@@ -7,6 +7,11 @@
 # Developer signature: raw.bytes. Third-party rights remain with their owners.
 
 """Pump panel component requirements and saved panel BOM browser."""
+import csv
+from urllib.parse import quote_plus
+from PySide6.QtCore import QUrl
+from PySide6.QtGui import QDesktopServices
+from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QComboBox, QTabWidget, QWidget,
     QMessageBox, QPlainTextEdit)
@@ -64,8 +69,69 @@ class PumpComponentsDialog(QDialog):
         assign = QPushButton('Assign selected model to highlighted BOM row (UNVERIFIED)')
         assign.clicked.connect(self.assign_model)
         panels_layout.addWidget(assign)
+        export = QPushButton('Export automatic BOM to CSV')
+        export.clicked.connect(self.export_bom)
+        panels_layout.addWidget(export)
         tabs.addTab(panels_page, 'Saved panel BOMs')
+        search_page = QWidget(); search_layout = QVBoxLayout(search_page)
+        search_layout.addWidget(QLabel('Search exact manufacturer part numbers, ratings and datasheets online. Results open in your browser; verify OEM sources before use.'))
+        self.web_query = QLineEdit()
+        self.web_query.setPlaceholderText('e.g. Schneider ATV320D22N4C 400V datasheet')
+        search_layout.addWidget(self.web_query)
+        search_btn = QPushButton('Search equipment on the internet')
+        search_btn.clicked.connect(self.search_equipment_online)
+        search_layout.addWidget(search_btn)
+        from_bom = QPushButton('Use highlighted BOM component as search term')
+        from_bom.clicked.connect(self.search_from_bom)
+        search_layout.addWidget(from_bom)
+        tabs.addTab(search_page, 'Find equipment online')
         self.refresh_types(); self.refresh_panels(); self.refresh_models()
+
+    def export_bom(self):
+        panel_id = self.panel.currentData()
+        if panel_id is None:
+            QMessageBox.warning(self, 'No panel', 'Select a saved pump panel first.')
+            return
+        path, _ = QFileDialog.getSaveFileName(self, 'Export pump panel bill of materials',
+            f'pump_panel_{panel_id}_bom.csv', 'CSV files (*.csv)')
+        if not path:
+            return
+        rows = self.repo.get_bom(panel_id)
+        catalog = {r['id']: r for r in self.catalog.search(limit=500)}
+        headers = ('Pump', 'Component', 'Quantity', 'Requirement', 'Manufacturer',
+                   'Model', 'Verification', 'Sizing notes', 'OEM source URL')
+        try:
+            with open(path, 'w', newline='', encoding='utf-8-sig') as stream:
+                writer = csv.writer(stream)
+                writer.writerow(['DRAFT / UNVERIFIED - engineering review required'])
+                writer.writerow(headers)
+                for row in rows:
+                    model = catalog.get(row['selected_catalog_id'], {})
+                    writer.writerow([row['motor_position'] or 'Common', row['component'],
+                        row['quantity'], row['requirement'], model.get('manufacturer', ''),
+                        model.get('model', ''), row['verification_status'],
+                        row['sizing_notes'], model.get('source_url', '')])
+        except OSError as exc:
+            QMessageBox.warning(self, 'Export failed', str(exc))
+            return
+        QMessageBox.information(self, 'BOM exported', f'Saved {len(rows)} BOM lines to {path}')
+
+    def search_from_bom(self):
+        index = self.bom_table.currentRow()
+        if index < 0:
+            QMessageBox.warning(self, 'Choose component', 'Highlight a BOM row first.')
+            return
+        self.web_query.setText(self.bom_rows[index]['component'] + ' manufacturer datasheet')
+        self.search_equipment_online()
+
+    def search_equipment_online(self):
+        query = self.web_query.text().strip()
+        if not query or len(query) > 250:
+            QMessageBox.warning(self, 'Search term', 'Enter an equipment model or component (maximum 250 characters).')
+            return
+        url = QUrl('https://www.google.com/search?q=' + quote_plus(query))
+        if not QDesktopServices.openUrl(url):
+            QMessageBox.warning(self, 'Browser unavailable', 'Could not open your default web browser.')
 
     def load_models(self):
         seed_pump_manufacturer_models(self.catalog)

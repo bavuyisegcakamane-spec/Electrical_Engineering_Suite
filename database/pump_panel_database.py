@@ -157,6 +157,23 @@ class PumpPanelDatabase:
     def assign_catalog_model(self, bom_id, catalog_id, sizing_notes=''):
         if not isinstance(sizing_notes,str) or len(sizing_notes)>5000:
             raise ValueError('Sizing notes must be text under 5000 characters')
+        from database.pump_model_compatibility import screen_model
+        row = self.db.execute('''SELECT t.name, c.category, c.specifications_json,
+            m.power_kw, d.voltage_v, m.nameplate_current_a, m.starter
+            FROM pump_panel_bom b
+            JOIN pump_component_types t ON t.id=b.component_type_id
+            JOIN pump_panel_designs d ON d.id=b.panel_id
+            LEFT JOIN pump_panel_motors m ON m.panel_id=b.panel_id AND m.position=b.motor_position
+            JOIN equipment_catalog c ON c.id=?
+            WHERE b.id=?''', (catalog_id,bom_id)).fetchone()
+        if row is None:
+            raise ValueError('BOM item or catalogue model not found')
+        component,category,spec_json,power,voltage,current,starter = row
+        blocked,review = screen_model(component,category,json.loads(spec_json),power,voltage,current,starter)
+        if blocked:
+            raise ValueError('Incompatible selection: ' + '; '.join(blocked))
+        if review and not sizing_notes.strip():
+            sizing_notes = 'Automatic review: ' + '; '.join(review)
         with self.db:
             cur = self.db.execute('UPDATE pump_panel_bom SET selected_catalog_id=?, sizing_notes=?, verification_status=? WHERE id=?',
                                   (catalog_id,sizing_notes,'unverified',bom_id))
