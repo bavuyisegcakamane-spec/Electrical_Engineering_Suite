@@ -27,7 +27,7 @@ def estimate_voltage_drop(current_amps, one_way_length_m, area_mm2, voltage_v,
         raise ValueError("Current and length must be non-negative; area and voltage positive.")
     if not 0 < power_factor <= 1:
         raise ValueError("Power factor must be greater than zero and at most one.")
-    if phases not in (1, 3) or isinstance(phases, bool):
+    if not isinstance(phases, int) or isinstance(phases, bool) or phases not in (1, 3):
         raise ValueError("Phases must be 1 or 3.")
     if material not in RESISTIVITY_OHM_MM2_PER_M:
         raise ValueError("Material must be Copper or Aluminium.")

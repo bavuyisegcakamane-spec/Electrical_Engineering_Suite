@@ -26,7 +26,7 @@ def estimate_fault_current(voltage_v, loop_impedance_ohms, breaker_rating_amps,
         raise ValueError("All inputs must be finite numbers.")
     if any(v <= 0 for v in values):
         raise ValueError("All inputs must be greater than zero.")
-    if phases not in (1, 3) or isinstance(phases, bool):
+    if not isinstance(phases, int) or isinstance(phases, bool) or phases not in (1, 3):
         raise ValueError("Phases must be 1 or 3.")
     phase_voltage = voltage_v if phases == 1 else voltage_v / math.sqrt(3)
     fault_amps = phase_voltage / loop_impedance_ohms
