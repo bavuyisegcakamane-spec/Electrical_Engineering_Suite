@@ -38,7 +38,10 @@ def test_existing_saved_panel_migrates_to_three_phase():
             panels = {p['id']: p for p in repo.list_panels()}
             assert panels[old_id]['phases'] == 3
             assert panels[new_id]['phases'] == 1
-            assert repo.get_bom(new_id) == []  # No unsafe 3-phase checklist
+            single_bom = repo.get_bom(new_id)
+            assert single_bom  # Limited review-only single-phase checklist
+            assert any(r['component'] == 'Site short-circuit study' for r in single_bom)
+            assert not any('Phase loss' in r['component'] for r in single_bom)
             assert len(repo.get_bom(old_id)) > 0
         finally:
             db.close()

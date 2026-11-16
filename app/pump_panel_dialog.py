@@ -100,7 +100,7 @@ class PumpPanelDialog(QDialog):
                   '', 'DESIGN WARNINGS:'] + [f'- {w}' for w in result['warnings']]
         bom = conceptual_bom([p.starter for p in pumps]) if result['phases'] == 3 else None
         if bom is None:
-            lines += ['', 'Single-phase BOM requires dedicated engineering review; no three-phase checklist generated.']
+            lines += ['', 'Single-phase saved panels receive a limited review checklist; no three-phase BOM is generated. Verify motor capacitor, overload, RCD/earth leakage, isolation, protective devices and wiring with a qualified designer.']
             self.output.setPlainText('\n'.join(lines))
             return
         lines += ['', 'CONCEPTUAL PANEL COMPONENT CHECKLIST (not sized):']

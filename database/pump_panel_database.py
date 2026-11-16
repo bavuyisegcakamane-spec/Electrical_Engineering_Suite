@@ -50,6 +50,27 @@ STARTER_EXTRA = {
 }
 
 
+SINGLE_PHASE_COMMON = {
+    'Incoming cable termination': 'required',
+    'Automatic / manual selector': 'review',
+    'Pump start permissives': 'required',
+    'Alarm annunciation': 'review',
+    'Control wiring / ferrules / labels': 'required',
+    'Panel gland plate': 'required',
+    'Cable duct / DIN rail': 'required',
+    'Panel drawings / labels / schedule': 'required',
+    'Factory testing and commissioning': 'required',
+    'Earthing continuity / insulation tests': 'required',
+    'Site short-circuit study': 'required',
+    'Cable ampacity / voltage drop study': 'required',
+    'Main / feeder protection coordination': 'required',
+}
+SINGLE_PHASE_BRANCH = {
+    'Contactor auxiliary contacts': 'review',
+    'Local motor isolator': 'review',
+}
+
+
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -124,17 +145,18 @@ class PumpPanelDatabase:
             panel_id = cur.lastrowid
             common = {name:'review' for name in COMMON}
             common.update(EXTRA_COMMON)
-            if phases == 3:
-                for name,status in common.items():
-                    self._add_bom(panel_id,None,name,status)
+            for name,status in (common if phases == 3 else SINGLE_PHASE_COMMON).items():
+                self._add_bom(panel_id,None,name,status)
             for index,pump in enumerate(pumps,1):
                 self.db.execute('INSERT INTO pump_panel_motors(panel_id,position,power_kw,starter) VALUES (?,?,?,?)',
                                 (panel_id,index,pump.power_kw,pump.starter))
                 if phases == 3:
                     branch = {name:'review' for name in BY_STARTER[pump.starter]}
                     branch.update(STARTER_EXTRA[pump.starter])
-                    for name,status in branch.items():
-                        self._add_bom(panel_id,index,name,status)
+                else:
+                    branch = SINGLE_PHASE_BRANCH
+                for name,status in branch.items():
+                    self._add_bom(panel_id,index,name,status)
         return panel_id
 
     def _add_bom(self, panel_id,position,name,status):
