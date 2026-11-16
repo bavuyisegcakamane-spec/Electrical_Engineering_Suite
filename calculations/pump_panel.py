@@ -55,7 +55,9 @@ def study_panel(pumps, voltage_v=400, power_factor=0.85, efficiency=0.90,
         records.append({'name':pump.name, 'power_kw':pump.power_kw,
                         'starter':pump.starter, 'estimated_running_a':round(current, 2)})
     # Conservative worst-case simultaneous subset: largest running currents.
-    selected = sorted(records, key=lambda row:row['estimated_running_a'], reverse=True)[:simultaneous]
+    # Sort and aggregate using full-precision current, never the rounded display value.
+    # At a fixed voltage/PF/efficiency, current is proportional to motor kW.
+    selected = sorted(records, key=lambda row: row['power_kw'], reverse=True)[:simultaneous]
     running_a = sum(pump['power_kw'] * 1000 / (sqrt(3) * voltage_v * power_factor * efficiency)
                     for pump in selected)
     installed_a = sum(pump['power_kw'] * 1000 / (sqrt(3) * voltage_v * power_factor * efficiency)

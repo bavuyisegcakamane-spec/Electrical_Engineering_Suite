@@ -14,7 +14,8 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QComboBox, QTabWidget, QWidget,
-    QMessageBox, QPlainTextEdit, QSpinBox)
+    QMessageBox, QPlainTextEdit, QSpinBox, QAbstractItemView, QDoubleSpinBox, QFormLayout)
+from calculations.pump_panel import Pump, PUMP_KW, STARTERS
 from database.pump_panel_database import PumpPanelDatabase
 from database.lv_panel_materials import PANEL_MATERIALS
 from database.equipment_catalog import EquipmentCatalog
@@ -45,7 +46,14 @@ class PumpComponentsDialog(QDialog):
         self.types_table.setHorizontalHeaderLabels(('Component', 'Scope', 'Description'))
         self.types_table.setColumnWidth(0, 450)
         self.types_table.setColumnWidth(1, 120)
+        self.types_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.types_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.types_table.cellDoubleClicked.connect(self.add_selected_component)
         types_layout.addWidget(self.types_table)
+        self.add_selected_button = QPushButton('Add highlighted component to saved panel BOM')
+        self.add_selected_button.clicked.connect(self.add_selected_component)
+        types_layout.addWidget(self.add_selected_button)
+        types_layout.addWidget(QLabel('Select a saved panel on the Saved panel BOMs tab first. Double-click a component here to add it.'))
         tabs.addTab(types_page, 'All panel components')
         panels_page = QWidget(); panels_layout = QVBoxLayout(panels_page)
         selector = QHBoxLayout()
@@ -54,10 +62,14 @@ class PumpComponentsDialog(QDialog):
         selector.addWidget(self.panel)
         refresh = QPushButton('Refresh saved panels'); refresh.clicked.connect(self.refresh_panels)
         selector.addWidget(refresh)
+        create = QPushButton('Create new panel')
+        create.clicked.connect(self.create_panel_dialog)
+        selector.addWidget(create)
         panels_layout.addLayout(selector)
         self.bom_table = QTableWidget(0, 6)
         self.bom_table.setHorizontalHeaderLabels(('Pump', 'Component', 'Qty', 'Requirement', 'Selected catalogue ID', 'Verification'))
         self.bom_table.setColumnWidth(1, 440)
+        self.bom_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         panels_layout.addWidget(self.bom_table)
         model_row = QHBoxLayout()
         self.models = QComboBox()
@@ -105,6 +117,88 @@ class PumpComponentsDialog(QDialog):
         search_layout.addWidget(from_bom)
         tabs.addTab(search_page, 'Find equipment online')
         self.refresh_types(); self.refresh_panels(); self.refresh_models(); self.refresh_material_choices()
+
+    def create_panel_dialog(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Create saved pump panel')
+        form = QFormLayout(dialog)
+        title = QLineEdit()
+        title.setPlaceholderText('e.g. Borehole pump control panel')
+        form.addRow('Panel name', title)
+        voltage = QDoubleSpinBox()
+        voltage.setRange(1, 450)
+        voltage.setValue(400)
+        voltage.setSuffix(' V')
+        form.addRow('Supply voltage', voltage)
+        breaker = QDoubleSpinBox()
+        breaker.setRange(1, 10000)
+        breaker.setValue(150)
+        breaker.setSuffix(' A')
+        form.addRow('Main breaker (provisional)', breaker)
+        count = QSpinBox()
+        count.setRange(1, 4)
+        form.addRow('Number of pumps', count)
+        pump_rows = []
+        for index in range(4):
+            power = QComboBox()
+            for kw in PUMP_KW:
+                power.addItem(f'{kw:g} kW', kw)
+            starter = QComboBox()
+            starter.addItems(STARTERS)
+            form.addRow(f'Pump {index + 1} power', power)
+            form.addRow(f'Pump {index + 1} starter', starter)
+            pump_rows.append((power, starter))
+        def update_count(*_):
+            for i, (power, starter) in enumerate(pump_rows):
+                power.setEnabled(i < count.value())
+                starter.setEnabled(i < count.value())
+        count.valueChanged.connect(update_count)
+        update_count()
+        form.addRow(QLabel('Draft only: confirm nameplate currents, protection and coordination before construction.'))
+        buttons = QHBoxLayout()
+        save = QPushButton('Create saved panel')
+        cancel = QPushButton('Cancel')
+        buttons.addWidget(save)
+        buttons.addWidget(cancel)
+        form.addRow(buttons)
+        cancel.clicked.connect(dialog.reject)
+        def save_panel():
+            pumps = [Pump(power.currentData(), starter.currentText())
+                     for power, starter in pump_rows[:count.value()]]
+            try:
+                panel_id = self.repo.create_panel(title.text(), pumps,
+                    voltage_v=voltage.value(), main_breaker_a=breaker.value())
+            except (ValueError, TypeError) as exc:
+                QMessageBox.warning(dialog, 'Cannot create panel', str(exc))
+                return
+            dialog.accept()
+            self.refresh_panels()
+            index = self.panel.findData(panel_id)
+            if index >= 0:
+                self.panel.setCurrentIndex(index)
+            QMessageBox.information(self, 'Saved panel created',
+                'Draft panel created. You can now add materials and export its BOM.')
+        save.clicked.connect(save_panel)
+        dialog.exec()
+
+    def add_selected_component(self, *_):
+        index = self.types_table.currentRow()
+        if index < 0:
+            QMessageBox.warning(self, 'Select component', 'Highlight a component first.')
+            return
+        panel_id = self.panel.currentData()
+        if panel_id is None:
+            QMessageBox.warning(self, 'No saved panel', 'Create or select a saved panel under Saved panel BOMs first.')
+            return
+        component = self.types_table.item(index, 0).text()
+        try:
+            self.repo.add_material_to_panel(panel_id, component, quantity=1)
+        except ValueError as exc:
+            QMessageBox.warning(self, 'Cannot add component', str(exc))
+            return
+        self.refresh_bom()
+        QMessageBox.information(self, 'Component added',
+            f'{component} added to the saved panel BOM (quantity 1, review required).')
 
     def refresh_material_choices(self, *_):
         self.material_choice.clear()
