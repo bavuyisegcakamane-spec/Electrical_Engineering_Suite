@@ -14,8 +14,9 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QComboBox, QTabWidget, QWidget,
-    QMessageBox, QPlainTextEdit)
+    QMessageBox, QPlainTextEdit, QSpinBox)
 from database.pump_panel_database import PumpPanelDatabase
+from database.lv_panel_materials import PANEL_MATERIALS
 from database.equipment_catalog import EquipmentCatalog
 from database.pump_manufacturer_models import seed_pump_manufacturer_models
 from app.branding import BRAND_SIGNATURE
@@ -36,6 +37,10 @@ class PumpComponentsDialog(QDialog):
         self.search = QLineEdit(); self.search.setPlaceholderText('Search panel components')
         self.search.textChanged.connect(self.refresh_types)
         types_layout.addWidget(self.search)
+        self.category = QComboBox()
+        self.category.addItems(['All categories'] + list(PANEL_MATERIALS))
+        self.category.currentIndexChanged.connect(self.refresh_types)
+        types_layout.addWidget(self.category)
         self.types_table = QTableWidget(0, 3)
         self.types_table.setHorizontalHeaderLabels(('Component', 'Scope', 'Description'))
         self.types_table.setColumnWidth(0, 450)
@@ -62,6 +67,20 @@ class PumpComponentsDialog(QDialog):
         load_models.clicked.connect(self.load_models)
         model_row.addWidget(load_models)
         panels_layout.addLayout(model_row)
+        material_row = QHBoxLayout()
+        self.material_category = QComboBox()
+        self.material_category.addItems(list(PANEL_MATERIALS))
+        self.material_category.currentIndexChanged.connect(self.refresh_material_choices)
+        material_row.addWidget(self.material_category)
+        self.material_choice = QComboBox()
+        material_row.addWidget(self.material_choice)
+        self.material_quantity = QSpinBox()
+        self.material_quantity.setRange(1, 9999)
+        material_row.addWidget(self.material_quantity)
+        add_material = QPushButton('Add material to panel BOM (review required)')
+        add_material.clicked.connect(self.add_material)
+        material_row.addWidget(add_material)
+        panels_layout.addLayout(material_row)
         self.notes = QPlainTextEdit()
         self.notes.setPlaceholderText('Required sizing and coordination review notes (unverified)')
         self.notes.setMaximumHeight(75)
@@ -85,7 +104,26 @@ class PumpComponentsDialog(QDialog):
         from_bom.clicked.connect(self.search_from_bom)
         search_layout.addWidget(from_bom)
         tabs.addTab(search_page, 'Find equipment online')
-        self.refresh_types(); self.refresh_panels(); self.refresh_models()
+        self.refresh_types(); self.refresh_panels(); self.refresh_models(); self.refresh_material_choices()
+
+    def refresh_material_choices(self, *_):
+        self.material_choice.clear()
+        for name in PANEL_MATERIALS[self.material_category.currentText()]:
+            self.material_choice.addItem(name)
+
+    def add_material(self):
+        panel_id = self.panel.currentData()
+        if panel_id is None:
+            QMessageBox.warning(self, 'No saved panel', 'Create or select a saved panel first.')
+            return
+        try:
+            self.repo.add_material_to_panel(panel_id, self.material_choice.currentText(),
+                                            quantity=self.material_quantity.value())
+        except ValueError as exc:
+            QMessageBox.warning(self, 'Cannot add material', str(exc))
+            return
+        self.refresh_bom()
+        QMessageBox.information(self, 'Material added', 'Material added to the common panel BOM as review-required.')
 
     def export_bom(self):
         panel_id = self.panel.currentData()
@@ -160,6 +198,10 @@ class PumpComponentsDialog(QDialog):
 
     def refresh_types(self, *_):
         rows = self.repo.list_component_types(self.search.text())
+        selected = self.category.currentText()
+        if selected != 'All categories':
+            allowed = set(PANEL_MATERIALS[selected])
+            rows = [row for row in rows if row['name'] in allowed]
         self.types_table.setRowCount(len(rows))
         for i, row in enumerate(rows):
             for j, key in enumerate(('name','scope','description')):

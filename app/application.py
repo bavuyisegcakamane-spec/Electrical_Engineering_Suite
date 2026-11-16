@@ -51,6 +51,7 @@ from app.sans_verification_dialog import SANSVerificationDialog
 from app.device_coordination_dialog import DeviceCoordinationDialog
 from app.equipment_catalog_dialog import EquipmentCatalogDialog
 from app.field_records_dialog import FieldRecordsDialog
+from app.pump_components_dialog import PumpComponentsDialog
 
 
 class MainWindow(QMainWindow):
@@ -178,9 +179,9 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def open_database(self):
-        """Open the database view."""
-
-        self.show_placeholder("Database")
+        """Open the pump-panel component database and saved BOM interface."""
+        dialog = PumpComponentsDialog(self.database, self)
+        dialog.exec()
 
     def open_settings(self):
         """Open the settings view."""

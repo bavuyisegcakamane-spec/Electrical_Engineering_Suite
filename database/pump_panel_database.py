@@ -14,6 +14,7 @@ Component ratings and selected SKUs must be verified by a competent designer.
 import json
 from datetime import datetime, timezone
 from database.pump_panel_components import COMMON, BY_STARTER
+from database.lv_panel_materials import PANEL_MATERIALS
 
 EXTRA_COMMON = (
     ('Incoming cable termination', 'required'), ('Incoming surge coordination', 'review'),
@@ -102,6 +103,11 @@ class PumpPanelDatabase:
             for scope, items in (('common',common),('branch',branch)):
                 for name in items:
                     self.db.execute('INSERT OR IGNORE INTO pump_component_types(name,scope) VALUES (?,?)', (name,scope))
+            for group, names in PANEL_MATERIALS.items():
+                for name in names:
+                    self.db.execute('''INSERT OR IGNORE INTO pump_component_types(name,scope,description)
+                        VALUES (?,?,?)''', (name,'common',
+                        f'{group} | Generic <=450 V panel material; applicability and ratings require design review'))
 
     def create_panel(self, title, pumps, voltage_v=400, main_breaker_a=150):
         from calculations.pump_panel import study_panel
@@ -153,6 +159,35 @@ class PumpPanelDatabase:
         rows=self.db.execute('''SELECT id,name,scope,description FROM pump_component_types
             WHERE name LIKE ? ESCAPE '\\' ORDER BY scope,name''',(pattern,)).fetchall()
         return [dict(zip(('id','name','scope','description'),row)) for row in rows]
+
+    def add_material_to_panel(self, panel_id, component_name, motor_position=None, quantity=1):
+        """Add a generic material to an existing panel as a review-required BOM line."""
+        if not isinstance(quantity, int) or isinstance(quantity, bool) or quantity < 1:
+            raise ValueError('Quantity must be a positive integer')
+        panel = self.db.execute('SELECT id FROM pump_panel_designs WHERE id=?', (panel_id,)).fetchone()
+        if panel is None:
+            raise ValueError('Saved panel not found')
+        component = self.db.execute(
+            'SELECT id FROM pump_component_types WHERE name=?', (component_name,)).fetchone()
+        if component is None:
+            raise ValueError('Select a known component')
+        if motor_position is not None:
+            motor = self.db.execute(
+                'SELECT 1 FROM pump_panel_motors WHERE panel_id=? AND position=?',
+                (panel_id, motor_position)).fetchone()
+            if motor is None:
+                raise ValueError('Pump position does not belong to selected panel')
+        existing = self.db.execute('''SELECT id FROM pump_panel_bom
+            WHERE panel_id=? AND component_type_id=? AND motor_position IS ?''',
+            (panel_id, component[0], motor_position)).fetchone()
+        if existing:
+            raise ValueError('Material already exists in this panel BOM')
+        with self.db:
+            self.db.execute('''INSERT INTO pump_panel_bom
+                (panel_id,motor_position,component_type_id,quantity,requirement,sizing_notes)
+                VALUES (?,?,?,?,?,?)''',
+                (panel_id,motor_position,component[0],quantity,'review',
+                 'Manually added generic material; confirm need, quantity, ratings and coordination'))
 
     def assign_catalog_model(self, bom_id, catalog_id, sizing_notes=''):
         if not isinstance(sizing_notes,str) or len(sizing_notes)>5000:
